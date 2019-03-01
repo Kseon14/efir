@@ -1,0 +1,24 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+
+    <changeSet id="adding table WORKER" author="kseon">
+        <createTable tableName="WORKER">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="FIRST_NAME" type="nvarchar(100)">
+              <constraints nullable="false"/>
+            </column>
+            <column name="LAST_NAME" type="nvarchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BASE_SALARY" type="float(8,2)"/>
+            <column name="STATUS" type="nvarchar(50)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

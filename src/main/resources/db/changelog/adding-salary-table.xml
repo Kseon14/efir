@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+
+    <changeSet id="adding table SALARY" author="kseon">
+        <createTable tableName="SALARY">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="WORKER_ID" type="int">
+                <constraints nullable="false" foreignKeyName="fk_salary_worker" references="WORKER(ID)"/>
+            </column>
+            <column name="CREATED_DATE" type="datetime"/>
+            <column name="SALARY" type="float(8,2)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

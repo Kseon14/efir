@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+
+    <changeSet id="adding table SHIFT" author="kseon">
+        <createTable tableName="SHIFT">
+            <column name="ID" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="WORKER_ID" type="int">
+                <constraints nullable="false" foreignKeyName="fk_shift_worker" references="WORKER(ID)"/>
+            </column>
+            <column name="CREATED_DATE" type="datetime"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="adding column SHIFT_DATE to SHIFT table" author="kseon">
+        <addColumn tableName="SHIFT">
+            <column name="SHIFT_DATE" type="date"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
