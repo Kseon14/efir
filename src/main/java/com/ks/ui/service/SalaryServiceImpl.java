@@ -58,4 +58,13 @@ public class SalaryServiceImpl implements SalaryService{
         return CollectionUtils.isEmpty(salaries) ? null : salaries.get(0);
     }
 
+    @Override
+    public void update(Salary salary){
+        jdbcTemplate.update("UPDATE SALARY SET " +
+                        "SALARY= coalesce(?, SALARY) " +
+                        "WHERE WORKER_ID=?",
+                salary.getSalary(), salary.getWorker().getId());
+    }
+
+
 }

@@ -4,6 +4,8 @@ import com.ks.ui.rowmapper.WorkerRowMapper;
 import com.ks.ui.vo.Salary;
 import com.ks.ui.vo.Worker;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import sun.jvm.hotspot.memory.LinearAllocBlock;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class WorkerServiceImpl  implements WorkerService{
@@ -63,8 +66,13 @@ public class WorkerServiceImpl  implements WorkerService{
 
     @Override
     public void update(Worker worker){
-        jdbcTemplate.update("UPDATE WORKER SET FIRST_NAME=?, LAST_NAME=?, STATUS=? WHERE ID=?",
-                worker.getFirstName(), worker.getLastName(), worker.getStatus());
+        jdbcTemplate.update("UPDATE WORKER SET " +
+                        "FIRST_NAME= coalesce(?, FIRST_NAME), " +
+                        "LAST_NAME=coalesce(?, LAST_NAME), " +
+                        "STATUS=coalesce(?, STATUS), " +
+                        "BASE_SALARY=coalesce(?, BASE_SALARY) " +
+                        "WHERE ID=?",
+                worker.getFirstName(), worker.getLastName(), worker.getStatus().name(), worker.getBaseSalary(), worker.getId());
     }
 
 }

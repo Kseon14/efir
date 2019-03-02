@@ -11,4 +11,6 @@ public interface SalaryService {
 
     Salary getByWorkerId(int workerId);
 
+    void update(Salary salary);
+
 }

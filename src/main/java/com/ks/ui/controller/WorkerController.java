@@ -28,7 +28,7 @@ public class WorkerController {
         this.workerService = workerService;
     }
 
-    @PostMapping()
+    @PostMapping
     public void createWorker(@RequestBody Worker worker){
         workerService.create(worker);
     }
@@ -38,7 +38,7 @@ public class WorkerController {
         return workerService.getById(id);
     }
 
-    @GetMapping()
+    @GetMapping
     public List<Worker> getById() {
         return workerService.getAll();
     }
@@ -48,7 +48,7 @@ public class WorkerController {
         workerService.delete(id);
     }
 
-    @PutMapping("{id}")
+    @PutMapping
     public void update(@RequestBody Worker worker){
         workerService.update(worker);
     }
