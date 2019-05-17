@@ -11,7 +11,7 @@
 
     <packaging>pom</packaging>
     <groupId>com.ks</groupId>
-    <artifactId>sst</artifactId>
+    <artifactId>efir</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <modules>

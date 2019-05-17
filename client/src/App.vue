@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <h2>Efir</h2>
     <div id="nav">
       <router-link to="/">shift</router-link> |
       <router-link to="/worker">worker</router-link> |
@@ -18,7 +19,7 @@
   color: #2c3e50;
 }
 #nav {
-  padding: 30px;
+  padding: 20px;
 }
 
 #nav a {
