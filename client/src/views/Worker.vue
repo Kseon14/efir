@@ -51,26 +51,29 @@ export default class Home extends Vue {
 </script>
 <style>
   table {
-    alignment: center;
     font-family: 'Open Sans', sans-serif;
     width: 750px;
     border-collapse: collapse;
-    border: 1px solid rgba(170, 179, 232, 0.17);
-    margin: 5px 10px 0 5px;
-    text-align: left;
+    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
+    margin: 0 auto;
+
   }
 
   table th {
-    background: rgba(128, 134, 174, 0.39);
+    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     padding: 5px;
     min-width: 20px;
-    border: 1px solid rgb(201, 201, 201);
+    text-align: left;
+
   }
+  tr:hover {background-color: #f5f5f5;}
 
   table td {
     padding: 5px;
-    border: 1px solid rgba(170, 179, 232, 0.17);
+    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
+    text-align: left;
+
   }
 
 </style>

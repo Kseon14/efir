@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Worker from './views/Worker.vue'
 
 Vue.use(Router)
 
@@ -11,7 +10,7 @@ export default new Router({
     {
       path: '/worker',
       name: 'worker',
-      component: Worker
+      component: () => import(/* webpackChunkName: "about" */ './views/Worker.vue')
     },
     {
       path: '/',
