@@ -4,6 +4,9 @@ pipeline {
     tools {
         maven "maven"
     }
+    options {
+        ansiColor('xterm')
+    }
 
     triggers {
         pollSCM "* * * * *"
