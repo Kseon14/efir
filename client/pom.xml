@@ -32,7 +32,7 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v11.14.0</nodeVersion>
+                            <nodeVersion>v11.15.0</nodeVersion>
                         </configuration>
                     </execution>
                     <execution>
