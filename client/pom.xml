@@ -36,7 +36,16 @@
                         <executions>
                             <execution>
                                 <configuration>
-                                    <installDirectory>/usr/bin/node</installDirectory>
+                                    <installDirectory>/usr/bin</installDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm install</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>install</arguments>
                                 </configuration>
                             </execution>
                             <execution>
