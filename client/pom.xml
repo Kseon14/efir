@@ -42,7 +42,7 @@
                                                 dir="${basedir}"
                                                 executable="/usr/bin/npm"
                                                 failonerror="true">
-                                            <arg line="install -g @vue/cli" />
+                                            <arg line="install" />
                                         </exec>
                                         <exec
                                                 dir="${basedir}"
