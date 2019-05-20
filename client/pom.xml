@@ -39,7 +39,7 @@
                                 <configuration>
                                     <tasks>
                                         <exec
-                                                dir="${basedir}/client"
+                                                dir="${basedir}"
                                                 executable="/usr/bin/npm"
                                                 failonerror="true">
                                             <arg line="run build" />
