@@ -14,13 +14,22 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "mvn clean install"
+                sh "mvn clean package"
             }
         }
 
         stage('Deploy') {
+            when {
+                expression {
+                    currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                }
+            }
             steps {
-                echo 'Deploying....'
+                echo 'Stoping server....'
+                sh "sudo efir.sh stop"
+                sh "mkdir /opt/efir"
+                sh "copy backend/target/target/backend-0.0.1-SNAPSHOT.jar /opt/efir"
+                sh "sudo efir.sh start"
             }
         }
     }
