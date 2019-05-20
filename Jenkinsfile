@@ -29,7 +29,7 @@ pipeline {
                 sh "sudo chmod +x efir.sh"
                 sh "sudo ./efir.sh stop"
                 sh "sudo mkdir /opt/efir"
-                sh "sudo copy backend/target/target/backend-0.0.1-SNAPSHOT.jar /opt/efir"
+                sh "sudo cp backend/target/target/backend-0.0.1-SNAPSHOT.jar /opt/efir"
                 sh "sudo ./efir.sh start"
             }
         }
