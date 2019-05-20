@@ -26,6 +26,7 @@ pipeline {
             }
             steps {
                 echo 'Stoping server....'
+                sh "pwd"
                 sh "sudo chmod +x efir.sh"
                 sh "sudo ./efir.sh stop"
                 sh "sudo mkdir -p /opt/efir"
