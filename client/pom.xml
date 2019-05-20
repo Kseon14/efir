@@ -42,13 +42,13 @@
                                                 dir="${basedir}"
                                                 executable="/usr/bin/npm"
                                                 failonerror="true">
-                                            <arg line="install" />
+                                            <arg line="install"/>
                                         </exec>
                                         <exec
                                                 dir="${basedir}"
                                                 executable="/usr/bin/npm"
                                                 failonerror="true">
-                                            <arg line="run build" />
+                                            <arg line="run build"/>
                                         </exec>
                                     </tasks>
                                 </configuration>
