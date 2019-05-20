@@ -26,10 +26,11 @@ pipeline {
             }
             steps {
                 echo 'Stoping server....'
-                sh "sudo efir.sh stop"
+                sh "sudo chmod +x efir.sh"
+                sh "sudo ./efir.sh stop"
                 sh "mkdir /opt/efir"
                 sh "copy backend/target/target/backend-0.0.1-SNAPSHOT.jar /opt/efir"
-                sh "sudo efir.sh start"
+                sh "sudo ./efir.sh start"
             }
         }
     }
