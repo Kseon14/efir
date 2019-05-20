@@ -35,10 +35,11 @@
                         <executions>
                             <execution>
                                 <phase>generate-sources</phase>
+                                <id>npm run build</id>
                                 <configuration>
                                     <tasks>
                                         <exec
-                                                dir="${project.basedir}"
+                                                dir="${basedir}/client"
                                                 executable="/usr/bin/npm"
                                                 failonerror="true">
                                             <arg line="run build" />
