@@ -62,7 +62,8 @@ public class ShiftServiceImpl implements ShiftService{
     @Override
     public List<Shift> getAll(){
         return jdbcTemplate.query(
-                "SELECT ID, WORKER_ID, CREATED_DATE, SHIFT_DATE FROM SHIFT", new ShiftRowMapper());
+                "SELECT sh.ID, w.FIRST_NAME, w.LAST_NAME, w.ID as WORKER_ID, sh.CREATED_DATE, sh.SHIFT_DATE FROM SHIFT sh "
+                        + "LEFT JOIN WORKER w on sh.WORKER_ID = w.ID", new ShiftRowMapper());
     }
 
     @Override

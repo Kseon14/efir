@@ -9,6 +9,11 @@ module.exports = {
         target: 'http://localhost:9005',
         ws: true,
         changeOrigin: true
+      },
+      '/api/shifts': {
+        target: 'http://localhost:9005',
+        ws: true,
+        changeOrigin: true
       }
     }
   },

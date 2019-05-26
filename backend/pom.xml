@@ -44,7 +44,6 @@
                             <resources>
                                 <resource>
                                     <directory>${project.parent.basedir}/client/target/dist</directory>
-
                                 </resource>
                             </resources>
                         </configuration>

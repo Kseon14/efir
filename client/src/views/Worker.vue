@@ -36,11 +36,10 @@
 
 @Component({
   components: {
-    //HelloWorld
   }
 })
 
-export default class Home extends Vue {
+export default class Workers extends Vue {
   public workers: Worker[] = [];
 
   private async created() {

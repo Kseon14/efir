@@ -16,6 +16,8 @@ public class ShiftRowMapper implements RowMapper<Shift> {
         shift.setId(rs.getInt("ID"));
         Worker worker = new Worker();
         worker.setId(rs.getInt("WORKER_ID"));
+        worker.setFirstName(rs.getString("FIRST_NAME"));
+        worker.setLastName(rs.getString("LAST_NAME"));
         shift.setWorker(worker);
         shift.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
         shift.setShiftDate(rs.getDate("SHIFT_DATE"));
