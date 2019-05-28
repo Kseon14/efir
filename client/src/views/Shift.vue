@@ -47,7 +47,6 @@
     }
 
     private compareDate(day : Date, days: string[]) {
-      console.log("compareDate", day, days);
       var dayIncome;
       for (dayIncome of days) {
        if (day.getDate() == new Date(dayIncome).getDate()) {
@@ -65,7 +64,6 @@
         days.push(new Date(date));
         date.setDate(date.getDate() + 1);
       }
-      console.log(days);
       return days;
     }
   }
