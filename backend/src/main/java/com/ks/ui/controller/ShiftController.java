@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ks.ui.service.ShiftService;
 import com.ks.ui.vo.Shift;
+import com.ks.ui.vo.ShiftDTO;
 
 @RestController
 @RequestMapping(path = "/api/shifts")
@@ -39,7 +40,7 @@ public class ShiftController {
     }
 
     @GetMapping
-    public List<Shift> getAll() {
+    public List<ShiftDTO> getAll() {
         return shiftService.getAll();
     }
 
