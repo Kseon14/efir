@@ -74,7 +74,7 @@ public class ShiftServiceImpl implements ShiftService{
         for (Map.Entry<Integer, List<Shift>> entry: workerToShift.entrySet()) {
             ShiftDTO shiftDTO = new ShiftDTO();
             shiftDTO.setWorker(entry.getValue().get(0).getWorker());
-            shiftDTO.setShiftDate(entry.getValue().stream().map(Shift::getShiftDate).collect(Collectors.toList()));
+            shiftDTO.setShiftDates(entry.getValue().stream().map(Shift::getShiftDate).collect(Collectors.toList()));
             shiftDTOS.add(shiftDTO);
         }
         return shiftDTOS;
