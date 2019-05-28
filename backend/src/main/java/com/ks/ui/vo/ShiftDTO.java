@@ -12,5 +12,5 @@ public class ShiftDTO {
     private Worker worker;
 
     @Getter @Setter
-    private List<Date> shiftDate;
+    private List<Date> shiftDates;
 }
