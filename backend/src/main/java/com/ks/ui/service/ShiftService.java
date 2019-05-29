@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.ks.ui.vo.Shift;
+import com.ks.ui.vo.ShiftDTO;
 
 public interface ShiftService {
 
@@ -15,7 +16,7 @@ public interface ShiftService {
 
     List<Shift> getByWorkerId(int workerId);
 
-    List<Shift> getAll();
+    List<ShiftDTO> getAll();
 
     List<Shift> getAllByMonth(Date date);
 

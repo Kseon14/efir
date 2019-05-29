@@ -6,7 +6,7 @@
     </div>
 
     <br>
-      <table id="firstTable">
+      <table id="firstTable" class="worker">
         <thead>
         <tr>
           <th>ID</th>
@@ -70,24 +70,23 @@ export default class Workers extends Vue {
     background-color: #008CBA;
     color: white;
   }
-  table {
+  table.worker {
     font-family: 'Open Sans', sans-serif;
-    width: 80%;
+    width: 40%;
     border-collapse: collapse;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     margin: 0 auto;
   }
 
-  table th {
+  table.worker th {
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     padding: 5px;
     min-width: 20px;
     text-align: left;
 
   }
-  tr:hover {background-color: #f5f5f5;}
 
-  table td {
+  table.worker td {
     padding: 5px;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;

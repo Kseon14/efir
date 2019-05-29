@@ -1,7 +1,7 @@
 <template>
   <div class="shift">
     <h3>Shifts for {{new Date().toLocaleString('en-us', { month: 'long' })}} </h3>
-    <table id="firstTable">
+    <table id="firstTable" class="shift">
       <thead>
       <tr>
         <th>Name</th>
@@ -14,7 +14,7 @@
       <tr v-for="row in shifts">
         <td>{{row.worker.lastName}} {{row.worker.firstName}}</td>
         <td v-for="day in getDaysInMonth(new Date().getMonth(), new Date().getFullYear())">
-         <div v-if="compareDate(day, row.shiftDate)">
+         <div v-if="compareDate(day, row.shiftDates)">
            <div class="cell">&nbsp;</div> </div>
         </td>
       </tr>
@@ -31,7 +31,7 @@
   export interface Shift {
     id: number;
     worker: Worker;
-    shiftDate: Date[];
+    shiftDates: string[];
   }
   @Component({
     components: {
@@ -46,7 +46,7 @@
       this.shifts = await response.data;
     }
 
-    private compareDate(day : Date, days: Date[]) {
+    private compareDate(day : Date, days: string[]) {
       var dayIncome;
       for (dayIncome of days) {
        if (day.getDate() == new Date(dayIncome).getDate()) {
@@ -70,7 +70,7 @@
 
 </script>
 <style>
-  table {
+  table.shift {
     font-family: 'Open Sans', sans-serif;
     width: 80%;
     border-collapse: collapse;
@@ -79,23 +79,23 @@
 
   }
 
-  table th {
+  table.shift th {
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     padding: 5px;
     min-width: 20px;
-    text-align: left;
-
+    text-align: center;
   }
+
   tr:hover {background-color: #f5f5f5;}
 
-  table td {
+  table.shift td {
     padding: 1px;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     border-right: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
     text-align: left;
   }
-  td:hover {
+  table.shift td:hover {
     background-color: #42b983;
   }
 
