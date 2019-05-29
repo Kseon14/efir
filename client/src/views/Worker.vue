@@ -1,6 +1,11 @@
 <template>
   <div class="workers">
     <h3>Workers</h3>
+    <div id="addWorker">
+      <button v-on:click="showModal = true">NEW WORKER</button>
+    </div>
+
+    <br>
       <table id="firstTable">
         <thead>
         <tr>
@@ -49,13 +54,28 @@ export default class Workers extends Vue {
 }
 </script>
 <style>
+  button {
+    background-color: white;
+    color: black;
+    border: 2px solid #008CBA;
+    padding: 16px 32px;
+    margin: 4px 2px;
+    text-align: center;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    transition-duration: 0.4s;
+  }
+  button:hover {
+    background-color: #008CBA;
+    color: white;
+  }
   table {
     font-family: 'Open Sans', sans-serif;
-    width: 750px;
+    width: 80%;
     border-collapse: collapse;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     margin: 0 auto;
-
   }
 
   table th {
@@ -72,7 +92,6 @@ export default class Workers extends Vue {
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
     text-align: left;
-
   }
 
 </style>
