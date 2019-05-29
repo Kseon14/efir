@@ -1,6 +1,11 @@
 <template>
   <div class="workers">
     <h3>Workers</h3>
+    <div id="addWorker">
+      <button v-on:click="showModal = true">NEW WORKER</button>
+    </div>
+
+    <br>
       <table id="firstTable" class="worker">
         <thead>
         <tr>
@@ -49,6 +54,22 @@ export default class Workers extends Vue {
 }
 </script>
 <style>
+  button {
+    background-color: white;
+    color: black;
+    border: 2px solid #008CBA;
+    padding: 16px 32px;
+    margin: 4px 2px;
+    text-align: center;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    transition-duration: 0.4s;
+  }
+  button:hover {
+    background-color: #008CBA;
+    color: white;
+  }
   table.worker {
     font-family: 'Open Sans', sans-serif;
     width: 40%;
