@@ -18,6 +18,6 @@ public interface ShiftService {
 
     List<ShiftDTO> getAll();
 
-    List<Shift> getAllByMonth(Date date);
+    List<ShiftDTO> getAllByMonth(Date date);
 
 }
