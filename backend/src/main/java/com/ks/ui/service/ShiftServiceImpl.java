@@ -1,7 +1,10 @@
 package com.ks.ui.service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +68,31 @@ public class ShiftServiceImpl implements ShiftService{
 
     @Override
     public List<ShiftDTO> getAll(){
-        List<ShiftDTO> shiftDTOS = new ArrayList<>();
         List<Shift> shifts = jdbcTemplate.query(
                 "SELECT sh.ID, w.FIRST_NAME, w.LAST_NAME, w.ID as WORKER_ID, sh.CREATED_DATE, sh.SHIFT_DATE FROM SHIFT sh "
                         + "LEFT JOIN WORKER w on sh.WORKER_ID = w.ID", new ShiftRowMapper());
+      return convertToShiftDTOs(shifts);
+    }
 
+    @Override
+    public List<ShiftDTO> getAllByMonth(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int month = localDate.getMonthValue();
+        int year = localDate.getYear();
+        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("date", sdf.format(date))
+                .addValue("year", year).addValue("month", month);
+        List<Shift> shifts = namedParameterJdbcTemplate.query(
+                "SELECT sh.ID, w.FIRST_NAME, w.LAST_NAME, w.ID as WORKER_ID, sh.CREATED_DATE, sh.SHIFT_DATE FROM SHIFT sh "
+                        + "LEFT JOIN WORKER w on sh.WORKER_ID = w.ID "
+                        + "WHERE YEAR(SHIFT_DATE) = :year "
+                        + "AND MONTH(SHIFT_DATE) = :month",
+                namedParameters, new ShiftRowMapper());
+        return convertToShiftDTOs(shifts);
+    }
+
+    private List<ShiftDTO> convertToShiftDTOs(Collection<Shift> shifts){
+        List<ShiftDTO> shiftDTOS = new ArrayList<>();
         Map<Integer, List<Shift>> workerToShift = shifts.stream().collect(Collectors.groupingBy(s -> s.getWorker().getId()));
         for (Map.Entry<Integer, List<Shift>> entry: workerToShift.entrySet()) {
             ShiftDTO shiftDTO = new ShiftDTO();
@@ -78,15 +101,6 @@ public class ShiftServiceImpl implements ShiftService{
             shiftDTOS.add(shiftDTO);
         }
         return shiftDTOS;
-    }
-
-    @Override
-    public List<Shift> getAllByMonth(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("date", sdf.format(date));
-        return namedParameterJdbcTemplate.query(
-                "SELECT ID, WORKER_ID, CREATED_DATE, SHIFT_DATE FROM SHIFT WHERE SHIFT_DATE =:date",
-                namedParameters, new ShiftRowMapper());
     }
 
 }
