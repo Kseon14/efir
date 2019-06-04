@@ -6,12 +6,12 @@ module.exports = {
   devServer: {
     proxy: {
       '/api/workers': {
-        target: 'http://134.249.123.246:9005',
+        target: 'http://localhost:9005',
         ws: true,
         changeOrigin: true
       },
       '/api/shifts': {
-        target: 'http://134.249.123.246:9005',
+        target: 'http://localhost:9005',
         ws: true,
         changeOrigin: true
       }
