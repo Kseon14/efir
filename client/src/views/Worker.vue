@@ -2,10 +2,10 @@
   <div class="workers">
     <h3>Workers</h3>
     <section id="addWorker">
-      <button @click="modal = !modal">add</button>
+      <button @click="modalCreate = !modalCreate">add</button>
       <br>
       <br>
-      <div v-if="modal" class="modal-bg">
+      <div v-if="modalCreate" class="modal-bg">
         <div class="modal-win">
           <h3>New Worker</h3>
           <div>
@@ -15,19 +15,45 @@
             </div>
             <div>
               <label class="mdl-textfield_label" for="new-item-lastName">Last Name</label>&nbsp;
-              <input class="mdl-textfield_input" type="text" id="new-item-lastName" v-model="newWorker.lastName">
+              <input class="mdl-textfield_input"  type="text" id="new-item-lastName" v-model="newWorker.lastName">
             </div>
             <div>
               <label class="mdl-textfield_label" for="new-item-salary">Base salary</label>&nbsp;
-              <input class="mdl-textfield_input" type="number" id="new-item-salary"
-                     v-model.number="newWorker.baseSalary">
+              <input class="mdl-textfield_input" type="number" id="new-item-salary" v-model.number="newWorker.baseSalary">
             </div>
           </div>
           <section>
             <br>
-            <button @click="modal = !modal">Close</button>&nbsp;
+            <button @click="modalCreate = !modalCreate">Close</button>&nbsp;
             <button id="new-item-add" @click="createWorker">Add</button>
           </section>
+          <p class="error">{{errorMessage}}</p>
+        </div>
+      </div>
+
+      <div v-if="modalEdit" class="modal-bg">
+        <div class="modal-win">
+          <h3>Edit Worker</h3>
+          <div>
+            <div>
+              <label class="mdl-textfield_label" for="new-item-firstName">First Name</label>&nbsp;
+              <input class="mdl-textfield_input" type="text" id="edit-item-firstName" v-model="selectedWorker.firstName">
+            </div>
+            <div>
+              <label class="mdl-textfield_label" for="new-item-lastName">Last Name</label>&nbsp;
+              <input class="mdl-textfield_input"  type="text" id="edit-item-lastName" v-model="selectedWorker.lastName">
+            </div>
+            <div>
+              <label class="mdl-textfield_label" for="new-item-salary">Base salary</label>&nbsp;
+              <input class="mdl-textfield_input" type="number" id="edit-item-salary" v-model.number="selectedWorker.baseSalary">
+            </div>
+          </div>
+          <section>
+            <br>
+            <button @click="modalEdit = !modalEdit">Close</button>&nbsp;
+            <button id="new-item-edit" @click="editWorker">Ok</button>
+          </section>
+          <p class="error">{{errorMessage}}</p>
         </div>
       </div>
 
@@ -49,6 +75,7 @@
         <td>{{row.baseSalary}}</td>
         <td>{{row.status}}</td>
         <th>
+          <button @click="selectWorker(row)">edit</button>&nbsp;
           <button @click="deleteWorker(row.id)">delete</button>
         </th>
       </tr>
@@ -79,6 +106,8 @@
     public newWorker: Worker = {
       status: 'ACTIVE'
     };
+    public selectedWorker = {};
+    public errorMessage:string = "";
 
     private async getWorkers() {
       let response = await axios.get('/api/workers');
@@ -95,9 +124,18 @@
     }
 
     private async createWorker() {
-      await axios.post('/api/workers', this.newWorker);
-      this.getWorkers();
-      this.modal = false
+      try {
+        if (this.newWorker.firstName == "") throw "is empty";
+      }catch (e) {
+        this.errorMessage = e
+      }
+      await axios.post('/api/workers', this.newWorker)
+        .then(()=> {
+          this.getWorkers();
+          this.modalCreate = false;
+          this.newWorker = {};
+        }
+      ).catch(error => {this.errorMessage = error.response.data.message});
     }
 
     private async deleteWorker(idUser: any) {
@@ -105,8 +143,22 @@
       this.getWorkers();
     }
 
-    public modal: boolean = false;
+    private async editWorker() {
+      await axios.put('/api/workers', this.selectedWorker)
+        .then(()=> {
+      this.getWorkers();
+      this.modalEdit = false
+          }
+        ).catch(error => {this.errorMessage = error.response.data.message});
+    }
 
+    public modalCreate : boolean = false;
+    public modalEdit: boolean = false;
+
+    private selectWorker(worker: Worker){
+      this.modalEdit = !this.modalEdit;
+      this.selectedWorker = worker;
+    }
   }
 
 
@@ -141,6 +193,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0px auto 10px auto;
   }
 
   .modal-win {
@@ -164,7 +217,6 @@
     padding: 5px;
     min-width: 20px;
     text-align: left;
-
   }
 
   table.worker td {
@@ -192,6 +244,11 @@
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
     padding: 5px;
+  }
+
+  p.error {
+    color: red;
+    max-width:100%;
   }
 
 </style>

@@ -83,10 +83,11 @@ public class ShiftServiceImpl implements ShiftService{
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("date", sdf.format(date))
                 .addValue("year", year).addValue("month", month);
         List<Shift> shifts = namedParameterJdbcTemplate.query(
-                "SELECT sh.ID, w.FIRST_NAME, w.LAST_NAME, w.ID as WORKER_ID, sh.CREATED_DATE, sh.SHIFT_DATE FROM SHIFT sh "
-                        + "LEFT JOIN WORKER w on sh.WORKER_ID = w.ID "
-                        + "WHERE YEAR(SHIFT_DATE) = :year "
-                        + "AND MONTH(SHIFT_DATE) = :month",
+                "SELECT sh.ID, w.FIRST_NAME, w.LAST_NAME, w.ID as WORKER_ID, sh.CREATED_DATE, sh.SHIFT_DATE "
+                        + "FROM SHIFT sh "
+                        + "RIGHT JOIN WORKER w on w.ID = sh.WORKER_ID "
+                        + "AND YEAR(sh.SHIFT_DATE) = :year "
+                        + "AND MONTH(sh.SHIFT_DATE) = :month ",
                 namedParameters, new ShiftRowMapper());
         return convertToShiftDTOs(shifts);
     }

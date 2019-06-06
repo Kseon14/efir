@@ -21,10 +21,8 @@
       <tbody>
       <tr v-for="row in shifts">
         <td>{{row.worker.lastName}} {{row.worker.firstName}}</td>
-        <td v-for="day in days">
-          <div v-if="compareDate(day, row.shiftDates)">
-            <div class="cell">&nbsp;</div>
-          </div>
+        <td v-for="day in days" v-bind:class="{filled : compareDate(day, row.shiftDates),
+        currentDay :isCurrentDay(day)}" >
         </td>
       </tr>
       </tbody>
@@ -58,12 +56,16 @@
 
     private async getShifts() {
       this.getDaysInMonth(this.selectedMonth -1, new Date().getFullYear())
-      console.log(this.selectedMonth)
       const response = await axios.get('/api/shifts/' + [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
       this.shifts = await response.data;
     }
 
     private compareDate(day: Date, days: string[]) {
+      if (days && days.length == 1) {
+        if (days[0] == null) {
+          return false;
+        }
+      }
       var dayIncome;
       for (dayIncome of days) {
         if (day.getDate() == new Date(dayIncome).getDate()) {
@@ -71,6 +73,10 @@
         }
       }
       return false
+    }
+
+    private isCurrentDay(day: Date) {
+      return new Date().getDate() == day.getDate() && new Date().getMonth() == day.getMonth();
     }
 
     private getMonthList(year: number) {
@@ -90,7 +96,6 @@
         this.days.push(new Date(date));
         date.setDate(date.getDate() + 1);
       }
-      console.log(this.days)
     }
   }
 
@@ -100,13 +105,11 @@
     font-family: 'Open Sans', sans-serif;
     width: 80%;
     border-collapse: collapse;
-    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     margin: 0 auto;
-
+    border-spacing: 0;
   }
 
   table.shift th {
-    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     padding: 5px;
     min-width: 20px;
     text-align: center;
@@ -119,7 +122,8 @@
   table.shift td {
     padding: 1px;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
-    border-right: 1px solid rgba(170, 179, 232, 0.17);
+    border-top: 1px solid rgba(170, 179, 232, 0.17);
+    border-right: 2px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
     text-align: left;
   }
@@ -128,19 +132,12 @@
     background-color: #42b983;
   }
 
-  div.cell {
+  td.filled {
     background-color: #206600;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
   }
-  div.currentDay {
+
+  td.currentDay {
     background-color: #ff6500;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
   }
 
 </style>
