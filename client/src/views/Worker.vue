@@ -146,8 +146,10 @@
     }
 
     private async deleteWorker(idUser: any) {
-      await axios.delete('/api/workers/' + idUser);
-      this.getWorkers();
+      if (confirm("Do you really want to delete?")) {
+        await axios.delete('/api/workers/' + idUser);
+        this.getWorkers();
+      }
     }
 
     private async editWorker() {

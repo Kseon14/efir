@@ -194,9 +194,5 @@
     height: 100%;
   }
 
-  td a {
-    display:block;
-    width:100%;
-  }
 
 </style>
