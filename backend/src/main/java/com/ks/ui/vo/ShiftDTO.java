@@ -1,6 +1,5 @@
 package com.ks.ui.vo;
 
-import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,5 +14,5 @@ public class ShiftDTO {
     private Worker worker;
 
     @Getter @Setter
-    private List<Date> shiftDates;
+    private List<Shift> shifts;
 }

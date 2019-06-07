@@ -36,16 +36,23 @@
           <h3>Edit Worker</h3>
           <div>
             <div>
-              <label class="mdl-textfield_label" for="new-item-firstName">First Name</label>&nbsp;
+              <label class="mdl-textfield_label" for="edit-item-firstName">First Name</label>&nbsp;
               <input class="mdl-textfield_input" type="text" id="edit-item-firstName" v-model="selectedWorker.firstName">
             </div>
             <div>
-              <label class="mdl-textfield_label" for="new-item-lastName">Last Name</label>&nbsp;
+              <label class="mdl-textfield_label" for="edit-item-lastName">Last Name</label>&nbsp;
               <input class="mdl-textfield_input"  type="text" id="edit-item-lastName" v-model="selectedWorker.lastName">
             </div>
             <div>
-              <label class="mdl-textfield_label" for="new-item-salary">Base salary</label>&nbsp;
+              <label class="mdl-textfield_label" for="edit-item-salary">Base salary</label>&nbsp;
               <input class="mdl-textfield_input" type="number" id="edit-item-salary" v-model.number="selectedWorker.baseSalary">
+            </div>
+            <div>
+              <label class="mdl-textfield_label" for="edit-item-status">Status</label>&nbsp;
+              <select  class="mdl-textfield_input" id="edit-item-status" v-model.number="selectedWorker.status">
+                <option>ACTIVE</option>
+                <option>INACTIVE</option>
+              </select>
             </div>
           </div>
           <section>
@@ -145,11 +152,13 @@
 
     private async editWorker() {
       await axios.put('/api/workers', this.selectedWorker)
-        .then(()=> {
-      this.getWorkers();
-      this.modalEdit = false
+        .then(() => {
+            this.getWorkers();
+            this.modalEdit = false
           }
-        ).catch(error => {this.errorMessage = error.response.data.message});
+        ).catch(error => {
+          this.errorMessage = error.response.data.message
+        });
     }
 
     public modalCreate : boolean = false;
@@ -157,7 +166,7 @@
 
     private selectWorker(worker: Worker){
       this.modalEdit = !this.modalEdit;
-      this.selectedWorker = worker;
+      Object.assign(this.selectedWorker, worker);
     }
   }
 
@@ -207,6 +216,7 @@
   table.worker {
     font-family: 'Open Sans', sans-serif;
     width: 40%;
+    min-width: 600px;
     border-collapse: collapse;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     margin: 0 auto;
@@ -236,6 +246,7 @@
   .mdl-textfield_label {
     border: 0;
     min-width: 20px;
+    alignment: left;
   }
 
   input:focus {
