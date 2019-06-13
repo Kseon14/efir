@@ -18,4 +18,11 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="adding column SALARY_DATE to SALARY table" author="kseon">
+        <addColumn tableName="SALARY">
+            <column name="SALARY_DATE" type="date"/>
+        </addColumn>
+    </changeSet>
+
+
 </databaseChangeLog>

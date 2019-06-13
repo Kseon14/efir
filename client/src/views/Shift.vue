@@ -23,8 +23,9 @@
         <td>{{row.worker.lastName}} {{row.worker.firstName}}</td>
         <td v-for="day in days" v-bind:class="{filled : compareDate(day, row.shifts),currentDay :isCurrentDay(day)}" >
           <input v-if="!compareDate(day, row.shifts)" type=submit value="+" class="shiftButton" @click="addShift(day, row.worker.id)">
-          <input v-if="compareDate(day, row.shifts)" type=submit value="-" class="shiftButton" @click="rmShift(day, row.shifts)">
+          <input v-if="compareDate(day, row.shifts)" type=submit value="-" class="shiftButton" @click="rmShift(day, row.shifts, row.worker.id)">
         </td>
+        <td>{{workersSalaries[row.worker.id]}}</td>
       </tr>
       </tbody>
     </table>
@@ -45,7 +46,11 @@
     worker!: Worker;
     shiftDate!: string;
   }
-
+  export class Salary{
+    id?: number;
+    worker?: Worker;
+    salary?: number;
+  }
 
   @Component({
     components: {}
@@ -56,16 +61,41 @@
     public selectedMonth: number = new Date().getMonth() +1;
     public days: Date[] = [];
     public errorMessage:string = "";
+    public workersSalaries: { [key: number]: any; } = {};
+
 
     private async created() {
+      var shift;
       this.getShifts();
+      this.getSalaries();
+    }
+
+    private async getSalary(workerId : any) {
+      let workerSalary: Salary[] = [];
+      const response = await axios.get(
+        '/api/salaries?worker=' + Number(workerId) + "&date=" + [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
+      workerSalary = await response.data;
+      this.workersSalaries[Number(workerId)] = workerSalary[0].salary;
+    }
+
+    private async getSalaries(){
+      var workerSalaries:Salary[] = [];
+      const response = await axios.get(
+        '/api/salaries?date=' + [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
+      workerSalaries = await response.data;
+      var salary : Salary = {};
+      for (salary of workerSalaries) {
+        let id : number = Number(salary.worker!.id);
+        this.workersSalaries[id] = salary.salary;
+      }
+      console.log(this.workersSalaries)
     }
 
     private async getShifts() {
       this.getDaysInMonth(this.selectedMonth -1, new Date().getFullYear())
       const response = await axios.get('/api/shifts/' +
         [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
-      this.shifts = await response.data;
+      this.shifts = response.data;
     }
 
     private compareDate(day: Date, shifts: Shift[]) {
@@ -98,7 +128,7 @@
 
     private async addShift(day : Date, workerId: number) {
       var shift = new Shift();
-      day.setDate(day.getDate() +1 )
+      day.setDate(day.getDate())
       console.log(day.toISOString())
       shift.shiftDate = day.toISOString();
       let worker: Worker = {};
@@ -111,9 +141,11 @@
         ).catch(error => {
           this.errorMessage = error.response.data.message
         });
+      console.log(workerId)
+      this.getSalary(workerId);
     }
 
-    private async rmShift(day: Date, shifts: Shift[]) {
+    private async rmShift(day: Date, shifts: Shift[], workerId: number) {
       var shift = new Shift();
       for (shift of shifts) {
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
@@ -127,6 +159,8 @@
         ).catch(error => {
           this.errorMessage = error.response.data.message
         });
+      console.log(workerId)
+      this.getSalary(workerId);
     }
 
     private getDaysInMonth(month: number, year: number) {
@@ -174,12 +208,12 @@
     background-color: #42b983;
   }
 
-  td.filled {
-    background-color: #206600;
-  }
-
   td.currentDay {
     background-color: #ff6500;
+  }
+
+  td.filled {
+    background-color: #206600;
   }
 
   input.shiftButton {

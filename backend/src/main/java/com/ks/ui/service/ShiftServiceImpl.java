@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
 import com.ks.ui.rowmapper.ShiftRowMapper;
+import com.ks.ui.vo.Salary;
 import com.ks.ui.vo.Shift;
 import com.ks.ui.vo.ShiftDTO;
 
@@ -28,28 +29,33 @@ public class ShiftServiceImpl implements ShiftService{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShiftServiceImpl.class);
 
-    private final
-    JdbcTemplate jdbcTemplate;
-
-    private final
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final SalaryService salaryService;
 
     @Autowired
-    public ShiftServiceImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public ShiftServiceImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+            SalaryService salaryService) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.salaryService = salaryService;
     }
 
     @Override
     public void create(Shift shift){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        int workerId = shift.getWorker().getId();
+        String formattedDate = sdf.format(shift.getShiftDate());
         jdbcTemplate.update("INSERT INTO SHIFT (WORKER_ID, CREATED_DATE, SHIFT_DATE) VALUES (?,?,?)",
-                shift.getWorker().getId(), shift.getCreatedDate(), shift.getShiftDate());
+                workerId, shift.getCreatedDate(), formattedDate);
+        salaryService.update(new Salary(workerId, shift.getShiftDate()));
     }
 
     @Override
     public void delete(int id){
+        Shift shift = getById(id);
         jdbcTemplate.update("DELETE FROM SHIFT WHERE ID=?", id);
-
+        salaryService.reduce(new Salary(shift.getWorker().getId(), shift.getShiftDate()));
     }
 
     @Override
@@ -66,6 +72,13 @@ public class ShiftServiceImpl implements ShiftService{
                 namedParameters, new ShiftRowMapper());
     }
 
+    private Shift getById(int shiftId){
+        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("shiftId", shiftId);
+        return namedParameterJdbcTemplate.query(
+                "SELECT ID, WORKER_ID, CREATED_DATE, SHIFT_DATE , null as FIRST_NAME, null as LAST_NAME FROM SHIFT WHERE ID =:shiftId",
+                namedParameters, new ShiftRowMapper()).get(0);
+    }
+
     @Override
     public List<ShiftDTO> getAll(){
         List<Shift> shifts = jdbcTemplate.query(
@@ -76,12 +89,12 @@ public class ShiftServiceImpl implements ShiftService{
 
     @Override
     public List<ShiftDTO> getAllByMonth(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         int month = localDate.getMonthValue();
         int year = localDate.getYear();
-        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("date", sdf.format(date))
-                .addValue("year", year).addValue("month", month);
+        SqlParameterSource namedParameters = new MapSqlParameterSource()
+                .addValue("year", year)
+                .addValue("month", month);
         List<Shift> shifts = namedParameterJdbcTemplate.query(
                 "SELECT sh.ID, w.FIRST_NAME, w.LAST_NAME, w.ID as WORKER_ID, sh.CREATED_DATE, sh.SHIFT_DATE "
                         + "FROM SHIFT sh "

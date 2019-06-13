@@ -14,6 +14,11 @@ module.exports = {
         target: 'http://localhost:9005',
         ws: true,
         changeOrigin: true
+      },
+      '/api/salaries': {
+        target: 'http://localhost:9005',
+        ws: true,
+        changeOrigin: true
       }
     }
   },

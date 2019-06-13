@@ -20,11 +20,8 @@ public class WorkerServiceImpl  implements WorkerService{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkerServiceImpl.class);
 
-    private final
-    JdbcTemplate jdbcTemplate;
-
-    private final
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public WorkerServiceImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
