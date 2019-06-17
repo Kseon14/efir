@@ -65,18 +65,16 @@
 
 
     private async created() {
-      Promise.all([this.getShifts(), this.getSalaries()]).then((data: any[]) => {
-        this.shifts = data[0];
-      })
-      // this.getShifts();
-      // this.getSalaries();
+      Promise.all([this.getShifts(), this.getSalaries()]).then( data =>
+        this.shifts = data[0]
+      )
     }
 
     private async getSalary(workerId : any) {
       let workerSalary: Salary[] = [];
       const response = await axios.get(
         '/api/salaries?worker=' + Number(workerId) + "&date=" + [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
-      workerSalary = await response.data;
+      workerSalary = response.data;
       this.workersSalaries[Number(workerId)] = workerSalary[0].salary;
     }
 
@@ -97,13 +95,7 @@
       this.getDaysInMonth(this.selectedMonth -1, new Date().getFullYear())
       const response = await axios.get('/api/shifts/' +
         [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
-      // this.shifts = response.data; // comented better to have it in all() method only
-
       return response.data;
-    }
-
-    private getWorkersData() {
-
     }
 
     private compareDate(day: Date, shifts: Shift[]) {
@@ -144,13 +136,14 @@
       shift.worker = worker;
       await axios.post('/api/shifts', shift)
         .then(() => {
-          Promise.all([this.getShifts(), this.getSalary(workerId)]).then((data: any[]) => {
-            this.shifts = data[0];
-          });
+          Promise.all([this.getShifts(), this.getSalary(worker.id)]).then(data =>
+          this.shifts = data[0]);
           }
         ).catch(error => {
           this.errorMessage = error.response.data.message
         });
+      console.log(workerId);
+      this.getSalary(workerId);
     }
 
     private async rmShift(day: Date, shifts: Shift[], workerId: number) {
@@ -162,14 +155,14 @@
       }
       await axios.delete('/api/shifts/' + shift.id)
         .then(() => {
-          Promise.all([this.getShifts(), this.getSalary(workerId)]).then((data: any[]) => {
-            this.shifts = data[0];
-          });
+          Promise.all([this.getShifts(), this.getSalary(workerId)]).then(data =>
+            this.shifts = data[0]);
           }
         ).catch(error => {
           this.errorMessage = error.response.data.message
         });
-      console.log(workerId)
+      console.log(workerId);
+      this.getSalary(workerId);
     }
 
     private getDaysInMonth(month: number, year: number) {
