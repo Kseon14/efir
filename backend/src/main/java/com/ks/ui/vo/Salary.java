@@ -44,6 +44,20 @@ public class Salary implements Serializable {
     @Getter @Setter
     private Date createdDate;
 
+    @Temporal(TemporalType.DATE)
+    @Getter @Setter
+    private Date salaryDate;
+
+
+    public Salary(int workerId, Date salaryDate) {
+        this.worker = new Worker();
+        worker.setId(workerId);
+        this.salaryDate = salaryDate;
+    }
+
+    public Salary() {
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)

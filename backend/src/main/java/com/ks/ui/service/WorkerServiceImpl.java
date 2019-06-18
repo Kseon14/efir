@@ -20,11 +20,8 @@ public class WorkerServiceImpl  implements WorkerService{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkerServiceImpl.class);
 
-    private final
-    JdbcTemplate jdbcTemplate;
-
-    private final
-    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public WorkerServiceImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -41,6 +38,8 @@ public class WorkerServiceImpl  implements WorkerService{
 
     @Override
     public void delete(int id){
+        jdbcTemplate.update("DELETE FROM SALARY WHERE WORKER_ID=?", id);
+        jdbcTemplate.update("DELETE FROM SHIFT WHERE WORKER_ID=?", id);
         jdbcTemplate.update("DELETE FROM WORKER WHERE ID=?", id);
 
     }

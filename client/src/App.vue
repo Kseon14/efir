@@ -2,9 +2,9 @@
   <div id="app">
     <h2>Efir</h2>
     <div id="nav">
-      <router-link to="/">shift</router-link> |
-      <router-link to="/worker">worker</router-link> |
-      <router-link to="/admin">admin</router-link>
+      <router-link to="/">shift</router-link>
+      | <router-link to="/worker">worker</router-link>
+<!--      | <router-link to="/admin">admin</router-link>-->
     </div>
     <router-view/>
   </div>
@@ -19,7 +19,7 @@
   color: #2c3e50;
 }
 #nav {
-  padding: 20px;
+  padding: 10px;
 }
 
 #nav a {
