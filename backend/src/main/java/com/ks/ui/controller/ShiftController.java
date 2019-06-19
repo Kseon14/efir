@@ -45,7 +45,7 @@ public class ShiftController {
     }
 
     @GetMapping("{date}")
-    public List<ShiftDTO> getAllByMonth(@PathVariable("date") @DateTimeFormat(iso=DateTimeFormat.ISO.DATE)  Date date) {
+    public List<ShiftDTO> getAllByMonth(@PathVariable("date") @DateTimeFormat(pattern="YYYY-ММ-dd")  Date date) {
         return shiftService.getAllByMonth(date);
     }
 

@@ -18,6 +18,7 @@ import javax.validation.constraints.NotBlank;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +46,7 @@ public class Salary implements Serializable {
     private Date createdDate;
 
     @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern="YYYY-ММ-dd")
     @Getter @Setter
     private Date salaryDate;
 

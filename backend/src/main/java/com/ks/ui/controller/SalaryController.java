@@ -36,7 +36,7 @@ public class SalaryController {
 
     @GetMapping
     public List<Salary> getById(@RequestParam(value = "worker", required = false) Integer workerId,
-            @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) @RequestParam("date") Date date) {
+            @DateTimeFormat(pattern="YYYY-ММ-dd") @RequestParam("date") Date date) {
         if (workerId == null) {
             return salaryService.getAllByDate(date);
         }

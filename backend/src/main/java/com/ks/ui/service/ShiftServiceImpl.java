@@ -1,9 +1,8 @@
 package com.ks.ui.service;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -89,9 +88,10 @@ public class ShiftServiceImpl implements ShiftService{
 
     @Override
     public List<ShiftDTO> getAllByMonth(Date date) {
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        int month = localDate.getMonthValue();
-        int year = localDate.getYear();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int month =  cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("year", year)
                 .addValue("month", month);

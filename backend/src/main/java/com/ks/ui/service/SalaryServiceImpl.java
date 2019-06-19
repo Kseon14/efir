@@ -2,9 +2,9 @@ package com.ks.ui.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -115,11 +115,10 @@ public class SalaryServiceImpl implements SalaryService{
 
     @Override
     public List<Salary> getByWorkerIdAndDate(Salary salary){
-        LocalDate localDate = Instant.ofEpochMilli(salary.getSalaryDate().getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-        int month = localDate.getMonthValue();
-        int year = localDate.getYear();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(salary.getSalaryDate());
+        int month =  cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("workerId", salary.getWorker().getId())
                 .addValue("year", year)
