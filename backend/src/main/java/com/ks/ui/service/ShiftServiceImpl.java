@@ -1,14 +1,9 @@
 package com.ks.ui.service;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.ks.ui.rowmapper.ShiftRowMapper;
+import com.ks.ui.vo.Salary;
+import com.ks.ui.vo.Shift;
+import com.ks.ui.vo.ShiftDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +13,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
-import com.ks.ui.rowmapper.ShiftRowMapper;
-import com.ks.ui.vo.Salary;
-import com.ks.ui.vo.Shift;
-import com.ks.ui.vo.ShiftDTO;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ShiftServiceImpl implements ShiftService{
@@ -88,6 +87,7 @@ public class ShiftServiceImpl implements ShiftService{
 
     @Override
     public List<ShiftDTO> getAllByMonth(Date date) {
+        LOGGER.info("Date: {}", date);
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         int month =  cal.get(Calendar.MONTH);

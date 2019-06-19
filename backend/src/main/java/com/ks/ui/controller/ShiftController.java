@@ -1,10 +1,9 @@
 package com.ks.ui.controller;
 
-import java.util.Date;
-import java.util.List;
-
+import com.ks.ui.service.ShiftService;
+import com.ks.ui.vo.Shift;
+import com.ks.ui.vo.ShiftDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ks.ui.service.ShiftService;
-import com.ks.ui.vo.Shift;
-import com.ks.ui.vo.ShiftDTO;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/shifts")
@@ -45,8 +45,9 @@ public class ShiftController {
     }
 
     @GetMapping("{date}")
-    public List<ShiftDTO> getAllByMonth(@PathVariable("date") @DateTimeFormat(pattern="YYYY-ММ-dd")  Date date) {
-        return shiftService.getAllByMonth(date);
+    public List<ShiftDTO> getAllByMonth(@PathVariable("date")  String date) throws ParseException {
+        Date date1 = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        return shiftService.getAllByMonth(date1);
     }
 
     @DeleteMapping("{id}")
