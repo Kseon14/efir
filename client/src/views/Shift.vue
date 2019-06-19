@@ -22,7 +22,7 @@
       <tr v-for="row in shifts">
         <td>{{row.worker.lastName}} {{row.worker.firstName}}</td>
         <td v-for="day in days" v-bind:class="{filled : compareDate(day, row.shifts),currentDay :isCurrentDay(day)}" >
-          <input v-if="!compareDate(day, row.shifts)" type=submit value="+" class="shiftButton" @click="addShift(day, row.worker.id)">
+          <input v-if="!compareDate(day, row.shifts)" type=submit value="+" class="shiftButton" @click="addShift(day,  row.worker.id)">
           <input v-if="compareDate(day, row.shifts)" type=submit value="-" class="shiftButton" @click="rmShift(day, row.shifts, row.worker.id)">
         </td>
         <td>{{workersSalaries[row.worker.id]}}</td>
