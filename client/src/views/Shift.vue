@@ -2,7 +2,7 @@
   <div class="shift">
     <h3>Shifts for
 
-      <select v-model="selectedMonth" v-on:change="getShifts()">
+      <select v-model="selectedMonth" v-on:change="getAll()">
         <option v-for="option in getMonthList(new Date().getFullYear())" v-bind:value="option.value">
           {{ option.text }}
         </option>
@@ -58,11 +58,14 @@
 
   export default class Shifts extends Vue {
     public shifts: ShiftUser[] = [];
-    public selectedMonth: number = new Date().getMonth() +1;
+    public selectedMonth: number = this.getCurrentMonth();
     public days: Date[] = [];
     public errorMessage:string = "";
     public workersSalaries: { [key: number]: any; } = {};
 
+    private getCurrentMonth(){
+      return new Date().getMonth() +1;
+    }
 
     private async created() {
       Promise.all([this.getShifts(), this.getSalaries()]).then( data =>
@@ -73,15 +76,21 @@
     private async getSalary(workerId : any) {
       let workerSalary: Salary[] = [];
       const response = await axios.get(
-        '/api/salaries?worker=' + Number(workerId) + "&date=" + [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
+        '/api/salaries?worker=' + Number(workerId) + "&date=" + [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
       workerSalary = response.data;
       this.workersSalaries[Number(workerId)] = workerSalary[0].salary;
+    }
+
+    private async getAll(){
+      Promise.all([this.getShifts(), this.getSalaries()]).then( data =>
+        this.shifts = data[0]
+      )
     }
 
     private async getSalaries(){
       var workerSalaries:Salary[] = [];
       const response = await axios.get(
-        '/api/salaries?date=' + [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
+        '/api/salaries?date=' + [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
       workerSalaries = await response.data;
       var salary : Salary = {};
       for (salary of workerSalaries) {
@@ -94,7 +103,8 @@
     private async getShifts() {
       this.getDaysInMonth(this.selectedMonth -1, new Date().getFullYear())
       const response = await axios.get('/api/shifts/' +
-        [new Date().getFullYear(), this.selectedMonth, '01'].join('-'));
+        [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
+      this.shifts = response.data;
       return response.data;
     }
 
@@ -128,9 +138,11 @@
 
     private async addShift(day : Date, workerId: number) {
       var shift = new Shift();
-      day.setDate(day.getDate());
-      console.log(day.toISOString());
-      shift.shiftDate = day.toISOString();
+     // day.setDate(day.getDate());
+     // console.log(day.getFullYear() + "-" + "0" + day.getMonth() + "-" + day.getDate());
+      console.log(day.getMonth())
+
+      shift.shiftDate = day.getFullYear() + "-" + ("0" + (day.getMonth()+1)).slice(-2) + "-" + ("0" + day.getDate()).slice(-2);
       let worker: Worker = {};
       worker.id = workerId;
       shift.worker = worker;
@@ -143,7 +155,6 @@
           this.errorMessage = error.response.data.message
         });
       console.log(workerId);
-      this.getSalary(workerId);
     }
 
     private async rmShift(day: Date, shifts: Shift[], workerId: number) {
@@ -162,7 +173,6 @@
           this.errorMessage = error.response.data.message
         });
       console.log(workerId);
-      this.getSalary(workerId);
     }
 
     private getDaysInMonth(month: number, year: number) {
