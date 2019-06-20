@@ -1,9 +1,15 @@
 package com.ks.ui.service;
 
-import com.ks.ui.rowmapper.ShiftRowMapper;
-import com.ks.ui.vo.Salary;
-import com.ks.ui.vo.Shift;
-import com.ks.ui.vo.ShiftDTO;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +19,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.ks.ui.rowmapper.ShiftRowMapper;
+import com.ks.ui.vo.Salary;
+import com.ks.ui.vo.Shift;
+import com.ks.ui.vo.ShiftDTO;
 
 @Service
 public class ShiftServiceImpl implements ShiftService{
@@ -42,6 +44,7 @@ public class ShiftServiceImpl implements ShiftService{
     @Override
     public void create(Shift shift){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         int workerId = shift.getWorker().getId();
         String formattedDate = sdf.format(shift.getShiftDate());
         jdbcTemplate.update("INSERT INTO SHIFT (WORKER_ID, CREATED_DATE, SHIFT_DATE) VALUES (?,?,?)",

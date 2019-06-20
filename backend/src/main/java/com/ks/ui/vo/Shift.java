@@ -45,7 +45,7 @@ public class Shift implements Serializable {
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern="YYYY-ММ-dd")
+    @DateTimeFormat(pattern="yyyy-ММ-dd")
     @Getter @Setter
     private Date shiftDate;
 
