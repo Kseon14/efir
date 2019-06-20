@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ public class SalaryServiceImpl implements SalaryService{
             return dbSalary.get(0).getId();
         }
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         KeyHolder holder = new GeneratedKeyHolder();
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("workerId", salary.getWorker().getId())
