@@ -2,6 +2,10 @@ package com.ks.ui.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -20,7 +24,19 @@ public class ShiftRowMapper implements RowMapper<Shift> {
         worker.setLastName(rs.getString("LAST_NAME"));
         shift.setWorker(worker);
         shift.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
-        shift.setShiftDate(rs.getDate("SHIFT_DATE"));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String date = rs.getString("SHIFT_DATE");
+        if (date != null) {
+            Date convertedDate;
+            try {
+                convertedDate = sdf.parse(rs.getString("SHIFT_DATE"));
+            } catch (ParseException e) {
+                return null;
+            }
+
+            shift.setShiftDate(convertedDate);
+        }
         return shift;
     }
 }

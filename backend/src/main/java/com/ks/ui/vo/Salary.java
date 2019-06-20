@@ -46,7 +46,7 @@ public class Salary implements Serializable {
     private Date createdDate;
 
     @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern="YYYY-ММ-dd")
+    @DateTimeFormat(pattern="yyyy-ММ-dd")
     @Getter @Setter
     private Date salaryDate;
 

@@ -1,10 +1,12 @@
 package com.ks.ui.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,11 +38,14 @@ public class SalaryController {
 
     @GetMapping
     public List<Salary> getById(@RequestParam(value = "worker", required = false) Integer workerId,
-            @DateTimeFormat(pattern="YYYY-ММ-dd") @RequestParam("date") Date date) {
+            @RequestParam("date") String date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date convertedDate = sdf.parse(date);
         if (workerId == null) {
-            return salaryService.getAllByDate(date);
+            return salaryService.getAllByDate(convertedDate);
         }
-        return salaryService.getByWorkerIdAndDate(new Salary(workerId, date));
+        return salaryService.getByWorkerIdAndDate(new Salary(workerId, convertedDate));
     }
 
     @DeleteMapping("workers/{worker_id}")

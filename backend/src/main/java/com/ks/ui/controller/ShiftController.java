@@ -50,8 +50,8 @@ public class ShiftController {
     public List<ShiftDTO> getAllByMonth(@PathVariable("date")  String date) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date1 = sdf.parse(date);
-        return shiftService.getAllByMonth(date1);
+        Date convertedDate = sdf.parse(date);
+        return shiftService.getAllByMonth(convertedDate);
     }
 
     @DeleteMapping("{id}")
