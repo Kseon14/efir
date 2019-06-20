@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks.ui.service.SalaryService;
+import com.ks.ui.service.SalaryServiceImpl;
 import com.ks.ui.vo.Salary;
 
 @RestController
 @RequestMapping(path = "/api/salaries")
 public class SalaryController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SalaryServiceImpl.class);
 
     private final SalaryService salaryService;
 
@@ -42,6 +47,7 @@ public class SalaryController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date convertedDate = sdf.parse(date);
+        LOGGER.info("getById : {}", convertedDate);
         if (workerId == null) {
             return salaryService.getAllByDate(convertedDate);
         }
