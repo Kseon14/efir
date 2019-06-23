@@ -144,10 +144,11 @@ public class SalaryServiceImpl implements SalaryService{
                 .addValue("year", year)
                 .addValue("month", month);
         List<Salary> salaries = namedParameterJdbcTemplate.query(
-                "SELECT ID, WORKER_ID, SALARY, CREATED_DATE, SALARY_DATE "
-                        + "FROM SALARY "
-                        + "WHERE YEAR(SALARY_DATE) = :year "
-                        + "AND MONTH(SALARY_DATE) = :month" ,
+                "SELECT s.ID, w.ID as WORKER_ID, s.SALARY, s.SALARY_DATE "
+                        + "FROM WORKER w "
+                        + "LEFT JOIN SALARY s ON w.ID = s.WORKER_ID "
+                        + "AND YEAR(s.SALARY_DATE) = :year "
+                        + "AND MONTH(s.SALARY_DATE) = :month" ,
                 namedParameters, new SalaryRowMapper());
         return CollectionUtils.isEmpty(salaries) ? null : salaries;
     }

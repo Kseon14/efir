@@ -18,7 +18,6 @@ public class SalaryRowMapper implements RowMapper<Salary> {
         worker.setId(rs.getInt("WORKER_ID"));
         salary.setWorker(worker);
         salary.setSalary(rs.getBigDecimal("SALARY"));
-        salary.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
         salary.setSalaryDate(rs.getTimestamp("SALARY_DATE"));
         return salary;
     }

@@ -24,5 +24,8 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="adding default value SALARY in SALARY table" author="kseon">
+        <addDefaultValue columnName="SALARY" tableName="SALARY" defaultValue="0"/>
+    </changeSet>
 
 </databaseChangeLog>

@@ -50,6 +50,7 @@
     id?: number;
     worker?: Worker;
     salary?: number;
+    salaryDate?: string;
   }
 
   @Component({
@@ -88,23 +89,29 @@
     }
 
     private async getSalaries(){
-      var workerSalaries:Salary[] = [];
+      let workerSalaries:Salary[] = [];
       const response = await axios.get(
         '/api/salaries?date=' + [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
-      workerSalaries = await response.data;
-      var salary : Salary = {};
-      for (salary of workerSalaries) {
-        let id : number = Number(salary.worker!.id);
-        this.workersSalaries[id] = salary.salary;
+      workerSalaries = response.data;
+      var  workerSalary : Salary = {};
+      for (workerSalary of workerSalaries) {
+        let id : number = Number(workerSalary.worker!.id);
+        if (workerSalary.salary == null) {
+          this.workersSalaries[id] = 0;
+          continue;
+        }
+        this.workersSalaries[id] = workerSalary.salary;
+        console.log(workerSalary.salary);
+        console.log(workerSalary.salaryDate);
       }
-      console.log(this.workersSalaries)
+      console.log(this.workersSalaries);
     }
 
     private async getShifts() {
       this.getDaysInMonth(this.selectedMonth -1, new Date().getFullYear())
       const response = await axios.get('/api/shifts/' +
         [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
-      this.shifts = response.data;
+
       return response.data;
     }
 
