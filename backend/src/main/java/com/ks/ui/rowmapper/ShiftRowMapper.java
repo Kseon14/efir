@@ -5,10 +5,10 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.ks.ui.service.Utils;
 import com.ks.ui.vo.Shift;
 import com.ks.ui.vo.Worker;
 
@@ -24,8 +24,7 @@ public class ShiftRowMapper implements RowMapper<Shift> {
         worker.setLastName(rs.getString("LAST_NAME"));
         shift.setWorker(worker);
         shift.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat sdf = Utils.getSdf();
         String date = rs.getString("SHIFT_DATE");
         if (date != null) {
             Date convertedDate;

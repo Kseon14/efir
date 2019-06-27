@@ -18,47 +18,47 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ks.ui.service.SalaryService;
+import com.ks.ui.service.SalaryDeductionService;
 import com.ks.ui.service.Utils;
-import com.ks.ui.vo.Salary;
+import com.ks.ui.vo.SalaryDeduction;
 
 @RestController
-@RequestMapping(path = "/api/salaries")
-public class SalaryController {
+@RequestMapping(path = "/api/salariesDeduction")
+public class SalaryDeductionController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SalaryController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SalaryDeductionController.class);
 
-    private final SalaryService salaryService;
+    private final SalaryDeductionService salaryDeductionService;
 
     @Autowired
-    public SalaryController(SalaryService salaryService) {
-        this.salaryService = salaryService;
+    public SalaryDeductionController(SalaryDeductionService salaryDeductionService) {
+        this.salaryDeductionService = salaryDeductionService;
     }
 
     @PostMapping
-    public void create(@RequestBody Salary salary) {
-        salaryService.create(salary);
+    public void create(@RequestBody SalaryDeduction salaryDeduction) {
+        salaryDeductionService.create(salaryDeduction);
     }
 
     @GetMapping
-    public List<Salary> getById(@RequestParam(value = "worker", required = false) Integer workerId,
+    public List<SalaryDeduction> getById(@RequestParam(value = "worker", required = false) Integer workerId,
             @RequestParam("date") String date) throws ParseException {
         SimpleDateFormat sdf = Utils.getSdf();
         Date convertedDate = sdf.parse(date);
         LOGGER.info("getById : {}", convertedDate);
         if (workerId == null) {
-            return salaryService.getAllByDate(convertedDate);
+            return salaryDeductionService.getAllByDate(convertedDate);
         }
-        return salaryService.getByWorkerIdAndDate(new Salary(workerId, convertedDate));
+        return salaryDeductionService.getByWorkerIdAndDate(new SalaryDeduction(workerId, convertedDate));
     }
 
     @DeleteMapping("workers/{worker_id}")
     public void deleteByWorkerId(@PathVariable("worker_id") int workerId){
-        salaryService.deleteByWorkerId(workerId);
+        salaryDeductionService.deleteByWorkerId(workerId);
     }
 
     @PutMapping
-    public void update(@RequestBody Salary salary) {
-        salaryService.update(salary);
+    public void update(@RequestBody SalaryDeduction salaryDeduction) {
+        salaryDeductionService.update(salaryDeduction);
     }
 }

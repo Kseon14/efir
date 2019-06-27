@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ks.ui.service.ShiftService;
+import com.ks.ui.service.Utils;
 import com.ks.ui.vo.Shift;
 import com.ks.ui.vo.ShiftDTO;
 
@@ -48,8 +48,7 @@ public class ShiftController {
 
     @GetMapping("{date}")
     public List<ShiftDTO> getAllByMonth(@PathVariable("date")  String date) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat sdf = Utils.getSdf();
         Date convertedDate = sdf.parse(date);
         return shiftService.getAllByMonth(convertedDate);
     }

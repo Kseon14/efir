@@ -1,6 +1,5 @@
 package com.ks.ui.vo;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -24,9 +23,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "SALARY")
+@Table(name = "SALARY_DEDUCTION")
 @EntityListeners(AuditingEntityListener.class)
-public class Salary implements Serializable {
+public class SalaryDeduction {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter @Setter
@@ -37,7 +37,7 @@ public class Salary implements Serializable {
     private Worker worker;
 
     @Getter @Setter
-    private BigDecimal salary;
+    private BigDecimal deduction;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -48,23 +48,22 @@ public class Salary implements Serializable {
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern="yyyy-ММ-dd")
     @Getter @Setter
-    private Date salaryDate;
+    private Date deductionDate;
 
-
-    public Salary(int workerId, Date salaryDate) {
-        this.worker = new Worker(workerId);
-        this.salaryDate = salaryDate;
+    public SalaryDeduction(@NotBlank int worker, Date deductionDate) {
+        this.worker = new Worker(worker);
+        this.deductionDate = deductionDate;
     }
 
-    public Salary() {}
+    public SalaryDeduction() {}
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("worker", worker)
-                .append("salary", salary)
+                .append("deduction", deduction)
                 .append("createdDate", createdDate)
+                .append("deductionDate", deductionDate)
                 .toString();
     }
 }

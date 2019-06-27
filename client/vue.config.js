@@ -5,6 +5,7 @@ module.exports = {
   // see https://cli.vuejs.org/config/#devserver-proxy
   devServer: {
     proxy: {
+      //134.249.123.246
       '/api/workers': {
         target: 'http://localhost:9005',
         ws: true,

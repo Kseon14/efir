@@ -45,6 +45,12 @@ public class Worker implements Serializable {
     @Getter @Setter
     private WorkerStatus status;
 
+    public Worker(int id) {
+        this.id = id;
+    }
+
+    public Worker(){}
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
