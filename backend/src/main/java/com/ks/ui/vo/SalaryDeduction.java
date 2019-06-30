@@ -50,6 +50,9 @@ public class SalaryDeduction {
     @Getter @Setter
     private Date deductionDate;
 
+    @Getter @Setter
+    private String deductionNote;
+
     public SalaryDeduction(@NotBlank int worker, Date deductionDate) {
         this.worker = new Worker(worker);
         this.deductionDate = deductionDate;
@@ -64,6 +67,7 @@ public class SalaryDeduction {
                 .append("deduction", deduction)
                 .append("createdDate", createdDate)
                 .append("deductionDate", deductionDate)
+                .append("deductionNote", deductionNote)
                 .toString();
     }
 }

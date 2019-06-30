@@ -44,7 +44,7 @@ public class SalaryServiceImpl implements SalaryService{
     @Override
     public Integer create(Salary salary){
         salary.setCreatedDate(new Date());
-        List<Salary> dbSalary = getByWorkerIdAndDate(salary);
+        List<Salary> dbSalary = getByWorkerIdAndDate(salary.getWorker().getId(), salary.getSalaryDate());
         if (dbSalary != null) {
             return dbSalary.get(0).getId();
         }
@@ -99,11 +99,14 @@ public class SalaryServiceImpl implements SalaryService{
     }
 
     @Override
-    public void reduce(Salary salary) {
-        Worker worker = workerService.getById(salary.getWorker().getId());
+    public void reduce(int workerId, Date date) {
+        Worker worker = workerService.getById(workerId);
+        if (worker == null){
+            return;
+        }
         BigDecimal baseSalary =  worker.getBaseSalary();
         BigDecimal salaryPerDate = baseSalary.divide(BigDecimal.valueOf(SHIFTS_IN_MONTH), BigDecimal.ROUND_UP);
-        Salary dbSalary = getByWorkerIdAndDate(salary).get(0);
+        Salary dbSalary = getByWorkerIdAndDate(workerId, date).get(0);
 
         jdbcTemplate.update("UPDATE SALARY SET " +
                         "SALARY= coalesce(?, SALARY) " +
@@ -111,14 +114,28 @@ public class SalaryServiceImpl implements SalaryService{
                 dbSalary.getSalary().subtract(salaryPerDate), dbSalary.getId());
     }
 
+
     @Override
-    public List<Salary> getByWorkerIdAndDate(Salary salary){
-        LocalDate localDate = Utils.getLocalDate(salary.getSalaryDate());
-        LOGGER.info("getByWorkerIdAndDate : {}", salary.getSalaryDate());
+    public void minus(int workerId, Date date, BigDecimal deduction) {
+        Worker worker = workerService.getById(workerId);
+        if (worker == null){
+            return;
+        }
+        Salary dbSalary = getByWorkerIdAndDate(workerId, date).get(0);
+        jdbcTemplate.update("UPDATE SALARY SET " +
+                        "SALARY= coalesce(?, SALARY) " +
+                        "WHERE ID=?",
+                dbSalary.getSalary().subtract(deduction), dbSalary.getId());
+    }
+
+    @Override
+    public List<Salary> getByWorkerIdAndDate(int workerId, Date date){
+        LocalDate localDate = Utils.getLocalDate(date);
+        LOGGER.info("getByWorkerIdAndDate : {}", date);
         int month = localDate.getMonthValue();
         int year = localDate.getYear();
         SqlParameterSource namedParameters = new MapSqlParameterSource()
-                .addValue("workerId", salary.getWorker().getId())
+                .addValue("workerId", workerId)
                 .addValue("year", year)
                 .addValue("month", month);
         List<Salary> salaries = namedParameterJdbcTemplate.query(

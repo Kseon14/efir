@@ -54,13 +54,12 @@ public class ShiftServiceImpl implements ShiftService{
     public void delete(int id){
         Shift shift = getById(id);
         jdbcTemplate.update("DELETE FROM SHIFT WHERE ID=?", id);
-        salaryService.reduce(new Salary(shift.getWorker().getId(), shift.getShiftDate()));
+        salaryService.reduce(shift.getWorker().getId(), shift.getShiftDate());
     }
 
     @Override
     public void deleteByWorkerId(int workerId){
         jdbcTemplate.update("DELETE FROM SHIFT WHERE WORKER_ID=?", workerId);
-
     }
 
     @Override

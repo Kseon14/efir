@@ -11,6 +11,8 @@ public interface SalaryDeductionService {
 
     void deleteByWorkerId(int workerId);
 
+    void deleteById(int id);
+
     List<SalaryDeduction> getByWorkerIdAndDate(SalaryDeduction salaryDeduction);
 
     List<SalaryDeduction> getAllByDate(Date date);

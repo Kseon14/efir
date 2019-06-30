@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,15 @@ public class SalaryDeductionServiceImpl implements SalaryDeductionService {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final SalaryService salaryService;
 
     @Autowired
     public SalaryDeductionServiceImpl(JdbcTemplate jdbcTemplate,
-            NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+            NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+            SalaryService salaryService) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.salaryService = salaryService;
     }
 
     @Override
@@ -50,9 +54,13 @@ public class SalaryDeductionServiceImpl implements SalaryDeductionService {
                 .addValue("workerId", salaryDeduction.getWorker().getId())
                 .addValue("createdDate", sdf.format(new Date()))
                 .addValue("deductionDate",  sdf.format(salaryDeduction.getDeductionDate()))
-                .addValue("deduction",  new BigDecimal(0));
-        namedParameterJdbcTemplate.update("INSERT INTO SALARY_DEDUCTION (WORKER_ID, DEDUCTION, CREATED_DATE, DEDUCTION_DATE) " +
-                "VALUES (:workerId,:deduction,:createdDate,:deductionDate)", namedParameters, holder);
+                .addValue("deduction", ObjectUtils.defaultIfNull(salaryDeduction.getDeduction(), new BigDecimal(0)))
+                .addValue("deductionNote",  salaryDeduction.getDeductionNote());
+        namedParameterJdbcTemplate.update(
+                "INSERT INTO SALARY_DEDUCTION (WORKER_ID, DEDUCTION, CREATED_DATE, DEDUCTION_DATE, DEDUCTION_NOTE) " +
+                "VALUES (:workerId, :deduction, :createdDate, :deductionDate, :deductionNote)", namedParameters, holder);
+        salaryService.minus(salaryDeduction.getWorker().getId(), salaryDeduction.getDeductionDate(),
+                salaryDeduction.getDeduction());
         return Objects.requireNonNull(holder.getKey()).intValue();
     }
 
@@ -62,21 +70,29 @@ public class SalaryDeductionServiceImpl implements SalaryDeductionService {
     }
 
     @Override
+    public void deleteById(int id){
+        jdbcTemplate.update("DELETE FROM SALARY_DEDUCTION WHERE ID=?", id);
+    }
+
+    @Override
     public List<SalaryDeduction> getByWorkerIdAndDate(SalaryDeduction salaryDeduction){
         LocalDate localDate = Utils.getLocalDate(salaryDeduction.getDeductionDate());
         LOGGER.info("getByWorkerIdAndDate : {}", salaryDeduction.getDeductionDate());
         int month = localDate.getMonthValue();
         int year = localDate.getYear();
+        int day = localDate.getDayOfMonth();
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("workerId", salaryDeduction.getWorker().getId())
                 .addValue("year", year)
-                .addValue("month", month);
+                .addValue("month", month)
+                .addValue("day", day);
         List<SalaryDeduction> salaryDeductions = namedParameterJdbcTemplate.query(
-                "SELECT ID, WORKER_ID, DEDUCTION, CREATED_DATE, DEDUCTION_DATE "
+                "SELECT ID, WORKER_ID, DEDUCTION, CREATED_DATE, DEDUCTION_DATE, DEDUCTION_NOTE "
                         + "FROM SALARY_DEDUCTION "
                         + "WHERE WORKER_ID =:workerId "
                         + "AND YEAR(DEDUCTION_DATE) = :year "
-                        + "AND MONTH(DEDUCTION_DATE) = :month" ,
+                        + "AND MONTH(DEDUCTION_DATE) = :month "
+                        + "AND DAY(DEDUCTION_DATE) = :day" ,
                 namedParameters, new SalaryDeductionRowMapper());
         return CollectionUtils.isEmpty(salaryDeductions) ? null : salaryDeductions;
     }
@@ -91,7 +107,7 @@ public class SalaryDeductionServiceImpl implements SalaryDeductionService {
                 .addValue("year", year)
                 .addValue("month", month);
         List<SalaryDeduction> salaryDeductions = namedParameterJdbcTemplate.query(
-                "SELECT sd.ID, w.ID as WORKER_ID, sd.DEDUCTION, sd.DEDUCTION_DATE "
+                "SELECT sd.ID, w.ID as WORKER_ID, sd.DEDUCTION, sd.DEDUCTION_DATE, sd.DEDUCTION_NOTE "
                         + "FROM WORKER w "
                         + "LEFT JOIN SALARY_DEDUCTION sd ON w.ID = sd.WORKER_ID "
                         + "AND YEAR(sd.DEDUCTION_DATE) = :year "
@@ -104,16 +120,17 @@ public class SalaryDeductionServiceImpl implements SalaryDeductionService {
     public void update(SalaryDeduction salaryDeduction){
         int salaryId = create(salaryDeduction);
         jdbcTemplate.update("UPDATE SALARY_DEDUCTION SET " +
-                        "DEDUCTION = coalesce(?, DEDUCTION) " +
+                        "DEDUCTION = coalesce(?, DEDUCTION), DEDUCTION_NOTE = ? " +
                         "WHERE ID = ?",
-                salaryDeduction.getDeduction(), salaryId);
+                salaryDeduction.getDeduction(), salaryId, salaryDeduction.getDeductionNote());
     }
 
     @Override
     public SalaryDeduction getById(int id){
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("id", id);
         List<SalaryDeduction> salaryDeductions = namedParameterJdbcTemplate.query(
-                "SELECT ID, WORKER_ID, DEDUCTION, CREATED_DATE, DEDUCTION_DATE FROM SALARY_DEDUCTION WHERE ID =:id",
+                "SELECT ID, WORKER_ID, DEDUCTION, CREATED_DATE, DEDUCTION_DATE, DEDUCTION_NOTE"
+                        + " FROM SALARY_DEDUCTION WHERE ID =:id",
                 namedParameters, new SalaryDeductionRowMapper());
         return CollectionUtils.isEmpty(salaryDeductions) ? null : salaryDeductions.get(0);
     }

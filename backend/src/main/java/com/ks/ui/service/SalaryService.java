@@ -1,5 +1,6 @@
 package com.ks.ui.service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface SalaryService {
 
     Salary getByWorkerId(int workerId);
 
-    List<Salary> getByWorkerIdAndDate(Salary salary);
+    List<Salary> getByWorkerIdAndDate(int workerId, Date date);
 
     List<Salary> getAllByDate(Date date);
 
@@ -21,6 +22,8 @@ public interface SalaryService {
 
     Salary getById(int id);
 
-    void reduce(Salary salary);
+    void reduce(int workerId, Date date);
+
+    void minus(int workerId, Date date, BigDecimal deduction);
 
 }

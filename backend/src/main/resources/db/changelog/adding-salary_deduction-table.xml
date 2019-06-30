@@ -19,4 +19,11 @@
         </createTable>
     </changeSet>
 
+
+    <changeSet id="adding column DEDUCTION_NOTE to SALARY_DEDUCTION table" author="kseon">
+        <addColumn tableName="SALARY_DEDUCTION">
+            <column name="DEDUCTION_NOTE" type="nvarchar(2000)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

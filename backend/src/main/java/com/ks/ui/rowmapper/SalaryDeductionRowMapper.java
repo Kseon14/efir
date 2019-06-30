@@ -19,6 +19,7 @@ public class SalaryDeductionRowMapper implements RowMapper<SalaryDeduction> {
         salaryDeduction.setWorker(worker);
         salaryDeduction.setDeduction(rs.getBigDecimal("DEDUCTION"));
         salaryDeduction.setDeductionDate(rs.getTimestamp("DEDUCTION_DATE"));
+        salaryDeduction.setDeductionNote(rs.getString("DEDUCTION_NOTE"));
         return salaryDeduction;
     }
 }

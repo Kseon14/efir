@@ -49,7 +49,7 @@ public class SalaryController {
         if (workerId == null) {
             return salaryService.getAllByDate(convertedDate);
         }
-        return salaryService.getByWorkerIdAndDate(new Salary(workerId, convertedDate));
+        return salaryService.getByWorkerIdAndDate(workerId, convertedDate);
     }
 
     @DeleteMapping("workers/{worker_id}")
