@@ -116,17 +116,22 @@
     }
 
     private compareDate(day: Date, shifts: Shift[]) {
-      if (shifts && shifts.length == 1) {
-        if (shifts[0].shiftDate == null) {
+      if (shifts == null) {
+        console.log("shift is null")
+        return false;
+      }
+      if (shifts[0].shiftDate == null) {
+          console.log("shiftDate is null")
           return false;
-        }
       }
       var shift;
       for (shift of shifts) {
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
+          console.log("shift exist for specific date: " + new Date(shift.shiftDate).getDate() + " and worker " + shift.worker.id);
           return true;
         }
       }
+      console.log("shifts not exists for dates ");
       return false
     }
 
