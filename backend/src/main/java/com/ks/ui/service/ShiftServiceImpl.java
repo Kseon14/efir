@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,10 @@ public class ShiftServiceImpl implements ShiftService{
     @Override
     public void create(Shift shift){
         SimpleDateFormat sdf = Utils.getSdf();
+        Shift dbShift = getByWorkerIdAndDate(shift.getWorker().getId(), shift.getShiftDate());
+        if (dbShift != null){
+            return;
+        }
         int workerId = shift.getWorker().getId();
         String formattedDate = sdf.format(shift.getShiftDate());
         jdbcTemplate.update("INSERT INTO SHIFT (WORKER_ID, CREATED_DATE, SHIFT_DATE) VALUES (?,?,?)",
@@ -114,6 +119,29 @@ public class ShiftServiceImpl implements ShiftService{
             shiftDTOS.add(shiftDTO);
         }
         return shiftDTOS;
+    }
+
+    private Shift getByWorkerIdAndDate(int workerId, Date date){
+        LOGGER.info("Date: {}", date);
+        LocalDate localDate = Utils.getLocalDate(date);
+        int month = localDate.getMonthValue();
+        int year = localDate.getYear();
+        int day = localDate.getDayOfMonth();
+        SqlParameterSource namedParameters = new MapSqlParameterSource()
+                .addValue("year", year)
+                .addValue("month", month)
+                .addValue("day", day)
+                .addValue("workerId", workerId);
+        List<Shift> shifts = namedParameterJdbcTemplate.query(
+                "SELECT sh.ID, w.ID as WORKER_ID, w.FIRST_NAME, w.LAST_NAME, sh.CREATED_DATE, sh.SHIFT_DATE "
+                        + "FROM SHIFT sh "
+                        + "RIGHT JOIN WORKER w on w.ID = sh.WORKER_ID "
+                        + "AND YEAR(sh.SHIFT_DATE) = :year "
+                        + "AND MONTH(sh.SHIFT_DATE) = :month "
+                        + "AND DAY(sh.SHIFT_DATE) = :day "
+                        + "WHERE sh.WORKER_ID = :workerId",
+                namedParameters, new ShiftRowMapper());
+        return CollectionUtils.isEmpty(shifts) ? null : shifts.get(0);
     }
 
 }
