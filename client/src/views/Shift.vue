@@ -69,9 +69,7 @@
     }
 
     private async created() {
-      Promise.all([this.getShifts(), this.getSalaries()]).then( data =>
-        this.shifts = data[0]
-      )
+      await this.getAll();
     }
 
     private async getSalary(workerId : any) {
@@ -83,12 +81,19 @@
     }
 
     private async getAll(){
-      Promise.all([this.getShifts(), this.getSalaries()]).then( data =>
-        this.shifts = data[0]
-      )
+      this.getShifts().then(response => {
+        console.log('shifts response', response);
+        this.shifts = response;
+      });
+
+      this.getSalaries().then(data => {
+        console.log('work sal response', data);
+        this.workersSalaries = data;
+      });
     }
 
     private async getSalaries(){
+      const temp = {...this.workersSalaries};
       let workerSalaries:Salary[] = [];
       const response = await axios.get(
         '/api/salaries?date=' + [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
@@ -97,41 +102,32 @@
       for (workerSalary of workerSalaries) {
         let id : number = Number(workerSalary.worker!.id);
         if (workerSalary.salary == null) {
-          this.workersSalaries[id] = 0;
+          temp[id] = 0;
           continue;
         }
-        this.workersSalaries[id] = workerSalary.salary;
-        console.log(workerSalary.salary);
-        console.log(workerSalary.salaryDate);
+        temp[id] = workerSalary.salary;
       }
-      console.log(this.workersSalaries);
+      return temp;
     }
 
     private async getShifts() {
       this.getDaysInMonth(this.selectedMonth -1, new Date().getFullYear())
       const response = await axios.get('/api/shifts/' +
         [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
-
       return response.data;
     }
 
     private compareDate(day: Date, shifts: Shift[]) {
-      if (shifts == null) {
-        console.log("shift is null")
-        return false;
-      }
-      if (shifts[0].shiftDate == null) {
-          console.log("shiftDate is null")
+      if (shifts && shifts.length && shifts[0].shiftDate === null) {
           return false;
       }
+
       var shift;
       for (shift of shifts) {
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
-          console.log("shift exist for specific date: " + new Date(shift.shiftDate).getDate() + " and worker " + shift.worker.id);
           return true;
         }
       }
-      console.log("shifts not exists for dates ");
       return false
     }
 
@@ -150,9 +146,7 @@
 
     private async addShift(day : Date, workerId: number) {
       var shift = new Shift();
-     // day.setDate(day.getDate());
-     // console.log(day.getFullYear() + "-" + "0" + day.getMonth() + "-" + day.getDate());
-      console.log(day.getMonth())
+      console.log(day.getMonth());
 
       shift.shiftDate = day.getFullYear() + "-" + ("0" + (day.getMonth()+1)).slice(-2) + "-" + ("0" + day.getDate()).slice(-2);
       let worker: Worker = {};
