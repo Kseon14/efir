@@ -116,7 +116,7 @@ public class SalaryServiceImpl implements SalaryService{
 
 
     @Override
-    public void minus(int workerId, Date date, BigDecimal deduction) {
+    public void addAdjustment(int workerId, Date date, BigDecimal adjustment) {
         Worker worker = workerService.getById(workerId);
         if (worker == null){
             return;
@@ -125,7 +125,7 @@ public class SalaryServiceImpl implements SalaryService{
         jdbcTemplate.update("UPDATE SALARY SET " +
                         "SALARY= coalesce(?, SALARY) " +
                         "WHERE ID=?",
-                dbSalary.getSalary().subtract(deduction), dbSalary.getId());
+              dbSalary.getSalary().add(adjustment), dbSalary.getId());
     }
 
     @Override

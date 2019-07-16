@@ -10,9 +10,6 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
     }
 
-    triggers {
-        pollSCM "* * * * *"
-    }
     stages {
         stage('Build') {
             steps {

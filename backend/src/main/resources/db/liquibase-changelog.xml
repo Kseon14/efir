@@ -7,5 +7,5 @@
     <include file="changelog/adding-worker-table.xml" relativeToChangelogFile="true"/>
     <include file="changelog/adding-salary-table.xml" relativeToChangelogFile="true"/>
     <include file="changelog/adding-shift-table.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/adding-salary_deduction-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/adding-salary_adjustment-table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

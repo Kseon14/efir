@@ -24,6 +24,6 @@ public interface SalaryService {
 
     void reduce(int workerId, Date date);
 
-    void minus(int workerId, Date date, BigDecimal deduction);
+    void addAdjustment(int workerId, Date date, BigDecimal adjustment);
 
 }

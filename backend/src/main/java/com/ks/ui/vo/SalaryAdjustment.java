@@ -23,9 +23,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "SALARY_DEDUCTION")
+@Table(name = "SALARY_ADJUSTMENT")
 @EntityListeners(AuditingEntityListener.class)
-public class SalaryDeduction {
+public class SalaryAdjustment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class SalaryDeduction {
     private Worker worker;
 
     @Getter @Setter
-    private BigDecimal deduction;
+    private BigDecimal adjustment;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -48,26 +48,26 @@ public class SalaryDeduction {
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern="yyyy-ММ-dd")
     @Getter @Setter
-    private Date deductionDate;
+    private Date adjustmentDate;
 
     @Getter @Setter
-    private String deductionNote;
+    private String adjustmentNote;
 
-    public SalaryDeduction(@NotBlank int worker, Date deductionDate) {
+    public SalaryAdjustment(@NotBlank int worker, Date deductionDate) {
         this.worker = new Worker(worker);
-        this.deductionDate = deductionDate;
+        this.adjustmentDate = deductionDate;
     }
 
-    public SalaryDeduction() {}
+    public SalaryAdjustment() {}
 
     @Override public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("worker", worker)
-                .append("deduction", deduction)
+                .append("adjustment", adjustment)
                 .append("createdDate", createdDate)
-                .append("deductionDate", deductionDate)
-                .append("deductionNote", deductionNote)
+                .append("adjustmentDate", adjustmentDate)
+                .append("adjustmentNote", adjustmentNote)
                 .toString();
     }
 }
