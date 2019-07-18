@@ -15,6 +15,8 @@ public interface SalaryAdjustmentService {
 
     List<SalaryAdjustment> getByWorkerIdAndDate(SalaryAdjustment salaryAdjustment);
 
+    List<SalaryAdjustment> getByWorkerIdAndExactDate(SalaryAdjustment salaryAdjustment);
+
     List<SalaryAdjustment> getAllByDate(Date date);
 
     void update(SalaryAdjustment salaryAdjustment);

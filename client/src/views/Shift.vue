@@ -19,16 +19,26 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="row in shifts">
-        <td>{{row.worker.lastName}} {{row.worker.firstName}}</td>
-        <td v-for="day in days" v-bind:class="{filled : compareDate(day, row.shifts),currentDay :isCurrentDay(day)}" >
-          <input v-if="!compareDate(day, row.shifts)" type=submit value="+" class="shiftButton" @click="addShift(day, row.worker.id)">
-          <input v-if="compareDate(day, row.shifts)" type=submit value="-" class="shiftButton" @click="rmShift(day, row.shifts, row.worker.id)">
+      <template v-for="shift in shifts">
+      <tr >
+        <td  :class="{ opened: shift.contentVisible }" v-on:click="shift.contentVisible = !shift.contentVisible; getAdjustment(shift);">
+          {{shift.worker.lastName}} {{shift.worker.firstName}}
         </td>
-        <td>{{workersSalaries[row.worker.id]}}</td>
+        <td v-for="day in days" v-bind:class="{filled : compareDate(day, shift.shifts),currentDay :isCurrentDay(day)}" >
+          <input v-if="!compareDate(day, shift.shifts)" type=submit value="+" class="shiftButton" @click="addShift(day, shift.worker.id)">
+          <input v-else type=submit value="-" class="shiftButton" @click="rmShift(day, shift.shifts, shift.worker.id)">
+        </td>
+        <td>{{workersSalaries[shift.worker.id]}}</td>
       </tr>
+      <tr :class="{ opened: shift.contentVisible }"  v-for="adj in adjustments[shift.worker.id]" v-if="shift.contentVisible">
+        <td>{{adj.adjustmentNote}}</td>
+        <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)">{{adj.adjustment}} </td>
+        <td v-else></td>
+      </tr>
+      </template>
       </tbody>
     </table>
+
   </div>
 </template>
 
@@ -53,23 +63,54 @@
     salaryDate?: string;
   }
 
+  export class Adjustment{
+    id?: number;
+    worker?: Worker;
+    adjustment?: string;
+    adjustmentDate?: string;
+    adjustmentNote?: string;
+  }
+
   @Component({
     components: {}
   })
 
   export default class Shifts extends Vue {
     public shifts: ShiftUser[] = [];
-    public selectedMonth: number = this.getCurrentMonth();
+    public selectedMonth: number = -1;
     public days: Date[] = [];
     public errorMessage:string = "";
     public workersSalaries: { [key: number]: any; } = {};
-
-    private getCurrentMonth(){
-      return new Date().getMonth() +1;
-    }
+    public adjustments: { [key: number]: Adjustment[]; } = {};
 
     private async created() {
       await this.getAll();
+    }
+
+    private async getAll(){
+      let month = localStorage.getItem("selectedMonth");
+      console.log(month);
+      if (month == null) {
+        this.selectedMonth = this.getCurrentMonth();
+        localStorage.setItem("selectedMonth", this.selectedMonth + "");
+      } else if(this.selectedMonth == -1){
+        this.selectedMonth = Number(month);
+      } else if (this.selectedMonth != Number(month)) {
+        localStorage.setItem("selectedMonth", this.selectedMonth + "");
+      }
+
+      this.getShifts().then(response => {
+        this.shifts = response;
+      });
+
+      this.getSalaries().then(data => {
+        console.log('work sal response', data);
+        this.workersSalaries = data;
+      });
+    }
+
+    private getCurrentMonth(){
+      return new Date().getMonth() +1;
     }
 
     private async getSalary(workerId : any) {
@@ -80,24 +121,34 @@
       this.workersSalaries[Number(workerId)] = workerSalary[0].salary;
     }
 
-    private async getAll(){
-      this.getShifts().then(response => {
-        console.log('shifts response', response);
-        this.shifts = response;
-      });
-
-      this.getSalaries().then(data => {
-        console.log('work sal response', data);
-        this.workersSalaries = data;
-      });
+    private async getAdjustment(shift : any) {
+      if (!shift.contentVisible) {
+       this.adjustments[shift.worker.id] = [];
+       return ;
+      }
+      const temp : { [key: number]: Adjustment[]; } = {};
+      const response = await axios.get(
+          '/api/salaries_adjustment?&date=' + [new Date().getFullYear(), ("0" + this.selectedMonth).slice(-2), '01'].join('-'));
+      let adjustments = response.data;
+      let adjustment : Adjustment;
+      for (adjustment of adjustments) {
+        let array: Adjustment[] = [];
+        let id: number = Number(adjustment.worker!.id);
+        if (temp[id] == null) {
+          temp[id] = array;
+        } else {
+          array = temp[id];
+        }
+        array.push(adjustment);
+      }
+      this.adjustments = temp;
     }
 
     private async getSalaries(){
       const temp = {...this.workersSalaries};
-      let workerSalaries:Salary[] = [];
       const response = await axios.get(
         '/api/salaries?date=' + [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
-      workerSalaries = response.data;
+      let workerSalaries = response.data;
       var  workerSalary : Salary = {};
       for (workerSalary of workerSalaries) {
         let id : number = Number(workerSalary.worker!.id);
@@ -127,6 +178,16 @@
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
           return true;
         }
+      }
+      return false
+    }
+
+    private compareAdjustmentDate(day: Date, date: string) {
+      if (date === null) {
+        return false;
+      }
+      if (day.getDate() == new Date(date).getDate()) {
+          return true;
       }
       return false
     }
@@ -244,6 +305,10 @@
     transition-duration: 0.4s;
     width: 100%;
     height: 100%;
+  }
+
+  .opened {
+    background-color: #dddddd;
   }
 
 

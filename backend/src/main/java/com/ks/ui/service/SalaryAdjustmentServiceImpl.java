@@ -44,7 +44,7 @@ public class SalaryAdjustmentServiceImpl implements SalaryAdjustmentService {
     @Override
     public Integer create(SalaryAdjustment salaryAdjustment){
         salaryAdjustment.setCreatedDate(new Date());
-        List<SalaryAdjustment> dbSalaryAdjustment = getByWorkerIdAndDate(salaryAdjustment);
+        List<SalaryAdjustment> dbSalaryAdjustment = getByWorkerIdAndExactDate(salaryAdjustment);
         if (dbSalaryAdjustment != null) {
             return dbSalaryAdjustment.get(0).getId();
         }
@@ -74,8 +74,7 @@ public class SalaryAdjustmentServiceImpl implements SalaryAdjustmentService {
         jdbcTemplate.update("DELETE FROM SALARY_ADJUSTMENT WHERE ID=?", id);
     }
 
-    @Override
-    public List<SalaryAdjustment> getByWorkerIdAndDate(SalaryAdjustment salaryAdjustment){
+    public List<SalaryAdjustment> getByWorkerIdAndExactDate(SalaryAdjustment salaryAdjustment){
         LocalDate localDate = Utils.getLocalDate(salaryAdjustment.getAdjustmentDate());
         LOGGER.info("getByWorkerIdAndDate : {}", salaryAdjustment.getAdjustmentDate());
         int month = localDate.getMonthValue();
@@ -93,6 +92,26 @@ public class SalaryAdjustmentServiceImpl implements SalaryAdjustmentService {
                         + "AND YEAR(ADJUSTMENT_DATE) = :year "
                         + "AND MONTH(ADJUSTMENT_DATE) = :month "
                         + "AND DAY(ADJUSTMENT_DATE) = :day" ,
+                namedParameters, new SalaryAdjustmentRowMapper());
+        return CollectionUtils.isEmpty(salaryAdjustments) ? null : salaryAdjustments;
+    }
+
+    @Override
+    public List<SalaryAdjustment> getByWorkerIdAndDate(SalaryAdjustment salaryAdjustment){
+        LocalDate localDate = Utils.getLocalDate(salaryAdjustment.getAdjustmentDate());
+        LOGGER.info("getByWorkerIdAndDate : {}", salaryAdjustment.getAdjustmentDate());
+        int month = localDate.getMonthValue();
+        int year = localDate.getYear();
+        SqlParameterSource namedParameters = new MapSqlParameterSource()
+                .addValue("workerId", salaryAdjustment.getWorker().getId())
+                .addValue("year", year)
+                .addValue("month", month);
+        List<SalaryAdjustment> salaryAdjustments = namedParameterJdbcTemplate.query(
+                "SELECT ID, WORKER_ID, ADJUSTMENT, CREATED_DATE, ADJUSTMENT_DATE, ADJUSTMENT_NOTE "
+                        + "FROM SALARY_ADJUSTMENT "
+                        + "WHERE WORKER_ID =:workerId "
+                        + "AND YEAR(ADJUSTMENT_DATE) = :year "
+                        + "AND MONTH(ADJUSTMENT_DATE) = :month ",
                 namedParameters, new SalaryAdjustmentRowMapper());
         return CollectionUtils.isEmpty(salaryAdjustments) ? null : salaryAdjustments;
     }
