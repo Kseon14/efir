@@ -21,7 +21,7 @@
       <tbody>
       <template v-for="shift in shifts">
       <tr >
-        <td  :class="{ opened: shift.contentVisible }" v-on:click="shift.contentVisible = !shift.contentVisible; getAdjustment(shift);">
+        <td  v-bind:class="{ opened: shift.contentVisible, names: true }" v-on:click="shift.contentVisible = !shift.contentVisible; getAdjustment(shift);">
           {{shift.worker.lastName}} {{shift.worker.firstName}}
         </td>
         <td v-for="day in days" v-bind:class="{filled : compareDate(day, shift.shifts),currentDay :isCurrentDay(day)}" >
@@ -35,6 +35,9 @@
         <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)">{{adj.adjustment}} </td>
         <td v-else></td>
       </tr>
+        <tr v-if="shift.contentVisible">
+          <td>  <input type=submit value="+" class="shiftButton" @click="addShift(day, shift.worker.id)"> </td>
+        </tr>
       </template>
       </tbody>
     </table>
@@ -128,7 +131,7 @@
       }
       const temp : { [key: number]: Adjustment[]; } = {};
       const response = await axios.get(
-          '/api/salaries_adjustment?&date=' + [new Date().getFullYear(), ("0" + this.selectedMonth).slice(-2), '01'].join('-'));
+          '/api/salaries_adjustment?worker=' + shift.worker.id + '&date=' + [new Date().getFullYear(), ("0" + this.selectedMonth).slice(-2), '01'].join('-'));
       let adjustments = response.data;
       let adjustment : Adjustment;
       for (adjustment of adjustments) {
@@ -257,7 +260,7 @@
 <style>
   table.shift {
     font-family: 'Open Sans', sans-serif;
-    width: 80%;
+    width: 60%;
     border-collapse: collapse;
     margin: 0 auto;
     border-spacing: 0;
@@ -280,7 +283,7 @@
     border-right: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 25px;
     text-align: left;
-    height: 25px;
+    height: 28px;
   }
 
   table.shift td:hover {
@@ -309,6 +312,11 @@
 
   .opened {
     background-color: #dddddd;
+  }
+  table.shift td.names {
+    min-width: 150px;
+    text-align: left;
+    min-height: 40px;
   }
 
 

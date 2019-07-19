@@ -218,7 +218,7 @@
   table.worker {
     font-family: 'Open Sans', sans-serif;
     width: 40%;
-    min-width: 600px;
+    min-width:600px;
     border-collapse: collapse;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     margin: 0 auto;
@@ -226,13 +226,13 @@
 
   table.worker th {
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
-    padding: 5px;
+    padding: 3px;
     min-width: 20px;
     text-align: left;
   }
 
   table.worker td {
-    padding: 5px;
+    padding: 3px;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
     text-align: left;
@@ -243,6 +243,7 @@
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 20px;
     padding: 5px;
+    alignment: left;
   }
 
   .mdl-textfield_label {
