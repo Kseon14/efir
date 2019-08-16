@@ -9,15 +9,15 @@
         <div class="modal-win">
           <h3>New Worker</h3>
           <div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="new-item-firstName">First Name</label>&nbsp;
               <input class="mdl-textfield_input" type="text" id="new-item-firstName" v-model="newWorker.firstName">
             </div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="new-item-lastName">Last Name</label>&nbsp;
               <input class="mdl-textfield_input"  type="text" id="new-item-lastName" v-model="newWorker.lastName">
             </div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="new-item-salary">Base salary</label>&nbsp;
               <input class="mdl-textfield_input" type="number" id="new-item-salary" v-model.number="newWorker.baseSalary">
             </div>
@@ -35,19 +35,19 @@
         <div class="modal-win">
           <h3>Edit Worker</h3>
           <div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="edit-item-firstName">First Name</label>&nbsp;
               <input class="mdl-textfield_input" type="text" id="edit-item-firstName" v-model="selectedWorker.firstName">
             </div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="edit-item-lastName">Last Name</label>&nbsp;
               <input class="mdl-textfield_input"  type="text" id="edit-item-lastName" v-model="selectedWorker.lastName">
             </div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="edit-item-salary">Base salary</label>&nbsp;
               <input class="mdl-textfield_input" type="number" id="edit-item-salary" v-model.number="selectedWorker.baseSalary">
             </div>
-            <div>
+            <div class="clearfix">
               <label class="mdl-textfield_label" for="edit-item-status">Status</label>&nbsp;
               <select  class="mdl-textfield_input" id="edit-item-status" v-model.number="selectedWorker.status">
                 <option>ACTIVE</option>
@@ -55,7 +55,7 @@
               </select>
             </div>
           </div>
-          <section>
+          <section class="buttons">
             <br>
             <button @click="modalEdit = !modalEdit">Close</button>&nbsp;
             <button id="new-item-edit" @click="editWorker">Ok</button>
@@ -93,10 +93,10 @@
 </template>
 
 <script lang="ts">
-  import {Component, Vue} from 'vue-property-decorator'
-  import axios from 'axios';
+    import {Component, Vue} from 'vue-property-decorator'
+    import axios from 'axios';
 
-  export interface Worker {
+    export interface Worker {
     id?: number;
     firstName?: string;
     lastName?: string;
@@ -199,7 +199,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 98vh;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -212,7 +212,11 @@
     background-color: white;
     border-radius: .25rem;
     padding: 1rem;
-    width: 25%;
+    width: 22%;
+    display: block;
+    /*flex-direction: column;*/
+    /*align-items: baseline;*/
+
   }
 
   table.worker {
@@ -241,15 +245,21 @@
   .mdl-textfield_input {
     border: 0;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
-    min-width: 20px;
     padding: 5px;
-    alignment: left;
+    display: inline-block;
+    float: left;
+    text-align: left;
   }
 
   .mdl-textfield_label {
     border: 0;
-    min-width: 20px;
-    alignment: left;
+    min-width: 12px;
+    display: inline-block;
+    padding: 5px;
+    float: left;
+    clear: left;
+    width: 100px;
+    text-align: left;
   }
 
   input:focus {
@@ -263,6 +273,17 @@
   p.error {
     color: red;
     max-width:100%;
+  }
+
+  .clearfix:before {
+    display: table;
+    content: "";
+  }
+
+  .clearfix:after {
+    display: table;
+    clear:both;
+    content: "";
   }
 
 </style>

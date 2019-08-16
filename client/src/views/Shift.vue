@@ -9,6 +9,36 @@
       </select>
     </h3>
 
+    <div v-if="addAdjustment" class="modal-bg">
+      <div class="modal-win">
+        <h3>Add adjustment</h3>
+        <div>
+          <div class="clearfix">
+            <label class="mdl-textfield_label" for="edit-item-firstName">Date</label>&nbsp;
+            <select class="mdl-textfield_input" id="edit-item-firstName"  v-model="newAdjustment.adjustmentDate">
+              <option v-for="day in days" v-bind:value="day.getDate()">
+                {{day.getDate()}}
+              </option>
+            </select>
+          </div>
+          <div class="clearfix">
+            <label class="mdl-textfield_label" for="edit-item-lastName">Sum</label>&nbsp;
+            <input class="mdl-textfield_input"  type="number" id="edit-item-lastName" v-model.number="newAdjustment.adjustment">
+          </div>
+          <div class="clearfix">
+            <label class="mdl-textfield_label" for="edit-item-salary">Note</label>&nbsp;
+            <input class="mdl-textfield_input" type="text" id="edit-item-salary" v-model="newAdjustment.adjustmentNote">
+          </div>
+        </div>
+        <section>
+          <br>
+          <button @click="addAdjustment = !addAdjustment">Close</button>&nbsp;
+          <button id="new-item-edit" @click="createAdjustment" >Ok</button>
+        </section>
+        <p class="error">{{errorMessage}}</p>
+      </div>
+    </div>
+
     <table id="firstTable" class="shift">
       <thead>
       <tr>
@@ -29,28 +59,28 @@
           <input v-else type=submit value="-" class="shiftButton" @click="rmShift(day, shift.shifts, shift.worker.id)">
         </td>
         <td>{{workersSalaries[shift.worker.id]}}</td>
+        <td>  <input type=submit value="+ −" class="shiftButton" @click="selectWorkerId(shift.worker.id)"> </td>
       </tr>
       <tr :class="{ opened: shift.contentVisible }"  v-for="adj in adjustments[shift.worker.id]" v-if="shift.contentVisible">
         <td>{{adj.adjustmentNote}}</td>
         <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)">{{adj.adjustment}} </td>
         <td v-else></td>
       </tr>
-        <tr v-if="shift.contentVisible">
-          <td>  <input type=submit value="+" class="shiftButton" @click="addShift(day, shift.worker.id)"> </td>
-        </tr>
+        <tr v-if="shift.contentVisible"></tr>
       </template>
       </tbody>
     </table>
+
 
   </div>
 </template>
 
 <script lang="ts">
-  import {Component, Vue} from 'vue-property-decorator'
-  import axios from 'axios';
-  import {Worker} from './Worker.vue';
+    import {Component, Vue} from 'vue-property-decorator'
+    import axios from 'axios';
+    import {Worker} from './Worker.vue';
 
-  export interface ShiftUser {
+    export interface ShiftUser {
     worker: Worker;
     shiftDates: Shift[];
   }
@@ -85,6 +115,9 @@
     public errorMessage:string = "";
     public workersSalaries: { [key: number]: any; } = {};
     public adjustments: { [key: number]: Adjustment[]; } = {};
+    public addAdjustment : boolean = false;
+    public newAdjustment : Adjustment = {};
+    public workerIdForAdj : number = 0;
 
     private async created() {
       await this.getAll();
@@ -208,6 +241,26 @@
       return months;
     }
 
+    private async createAdjustment(){
+        var adjustment = this.newAdjustment;
+        let worker: Worker = {};
+        worker.id = this.workerIdForAdj;
+        console.log( this.workerIdForAdj);
+        adjustment.worker = worker;
+        adjustment.adjustmentDate =  new Date().getFullYear() + "-" + ("0" + (this.selectedMonth  )).slice(-2)
+            + "-" + ("0" + this.newAdjustment.adjustmentDate).slice(-2);
+
+        await axios.post('/api/salaries_adjustment', adjustment)
+            .then(() => {
+                Promise.all([ this.getSalary(worker.id)])
+                }
+            ).catch(error => {
+                this.errorMessage = error.response.data.message
+            });
+        this.addAdjustment = !this.addAdjustment
+        this.newAdjustment = {};
+    }
+
     private async addShift(day : Date, workerId: number) {
       var shift = new Shift();
       console.log(day.getMonth());
@@ -254,6 +307,14 @@
         date.setDate(date.getDate() + 1);
       }
     }
+
+      private selectWorkerId(workerId: number){
+          this.addAdjustment = !this.addAdjustment;
+          console.log(workerId);
+          this.workerIdForAdj = workerId;
+      }
+
+
   }
 
 </script>
@@ -317,6 +378,85 @@
     min-width: 150px;
     text-align: left;
     min-height: 40px;
+  }
+
+  .modal-bg {
+    /*background-color: rgba(0,0,0, 0.5);*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 50vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0px auto 10px auto;
+  }
+
+  .modal-win {
+    border: 1px lightslategrey solid;
+    background-color: white;
+    border-radius: .25rem;
+    padding: 1rem;
+    width: 25%;
+  }
+
+  .mdl-textfield_input {
+    border: 0;
+    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
+    padding: 5px;
+    display: inline-block;
+    float: left;
+    text-align: left;
+  }
+
+  .mdl-textfield_label {
+    border: 0;
+    min-width: 12px;
+    display: inline-block;
+    padding: 5px;
+    float: left;
+    clear: left;
+    width: 100px;
+    text-align: left;
+  }
+
+  input:focus {
+    outline: none;
+    border: 0;
+    border-bottom: 1px solid rgba(170, 179, 232, 0.17);
+    min-width: 20px;
+    padding: 5px;
+  }
+
+  button {
+    align-self: center;
+    background-color: white;
+    border-radius: .25rem;
+    color: black;
+    border: 1px solid #42b983;
+    padding: 5px 15px;
+    text-align: center;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-block;
+    transition-duration: 0.4s;
+  }
+
+  button:hover {
+    background-color: #42b983;
+    color: white;
+  }
+
+  .clearfix:before {
+    display: table;
+    content: "";
+  }
+
+  .clearfix:after {
+    display: table;
+    clear:both;
+    content: "";
   }
 
 
