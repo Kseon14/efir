@@ -62,7 +62,7 @@
         <td>  <input type=submit value="+ −" class="shiftButton" @click="selectWorkerId(shift.worker.id)"> </td>
       </tr>
       <tr :class="{ opened: shift.contentVisible }"  v-for="adj in adjustments[shift.worker.id]" v-if="shift.contentVisible">
-        <td><div class="commonText">{{adj.adjustmentNote}}</div></td>
+        <td><div class="indentText">>> {{adj.adjustmentNote}}</div></td>
         <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div class="commonText">{{adj.adjustment}}</div></td>
         <td v-else></td>
         <td><input type=submit class="shiftButton" @click="rmAdjustment(adj.id, adj.worker.id)" value="−"></td>
@@ -105,10 +105,7 @@
     adjustmentNote?: string;
   }
 
-  @Component({
-    components: {}
-  })
-
+  @Component
   export default class Shifts extends Vue {
     public shifts: ShiftUser[] = [];
     public selectedMonth: number = -1;
@@ -186,7 +183,7 @@
       const response = await axios.get(
         '/api/salaries?date=' + [new Date().getFullYear(), ("0" +this.selectedMonth).slice(-2), '01'].join('-'));
       let workerSalaries = response.data;
-      var  workerSalary : Salary = {};
+      let  workerSalary = new Salary();
       for (workerSalary of workerSalaries) {
         let id : number = Number(workerSalary.worker!.id);
         if (workerSalary.salary == null) {
@@ -210,7 +207,7 @@
           return false;
       }
 
-      var shift;
+      let shift;
       for (shift of shifts) {
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
           return true;
@@ -243,9 +240,11 @@
     }
 
     private async createAdjustment(){
-        var adjustment = this.newAdjustment;
+        let adjustment = this.newAdjustment;
         let worker: Worker = {};
+        let shift =  new Shift();
         worker.id = this.workerIdForAdj;
+        shift.worker = worker;
         console.log( this.workerIdForAdj);
         adjustment.worker = worker;
         adjustment.adjustmentDate =  new Date().getFullYear() + "-" + ("0" + (this.selectedMonth  )).slice(-2)
@@ -253,17 +252,18 @@
 
         await axios.post('/api/salaries_adjustment', adjustment)
             .then(() => {
-                Promise.all([ this.getSalary(worker.id)])
+                    Promise.all([this.getShifts(), this.getSalary(worker.id), this.getAdjustment(shift)]).then(data =>
+                        this.shifts = data[0]);
                 }
             ).catch(error => {
                 this.errorMessage = error.response.data.message
             });
-        this.addAdjustment = !this.addAdjustment
+        this.addAdjustment = !this.addAdjustment;
         this.newAdjustment = {};
     }
 
     private async addShift(day : Date, workerId: number) {
-      var shift = new Shift();
+      let shift = new Shift();
       console.log(day.getMonth());
 
       shift.shiftDate = day.getFullYear() + "-" + ("0" + (day.getMonth()+1)).slice(-2) + "-" + ("0" + day.getDate()).slice(-2);
@@ -282,9 +282,13 @@
     }
 
       private async rmAdjustment(adjustmentId: number,  workerId: number) {
+        let worker: Worker = {};
+        let shift =  new Shift();
+        worker.id = workerId;
+        shift.worker = worker;
           await axios.delete('/api/salaries_adjustment/' + adjustmentId)
               .then(() => {
-                      Promise.all([this.getShifts(), this.getSalary(workerId)]).then(data =>
+                      Promise.all([this.getShifts(), this.getSalary(workerId), this.getAdjustment(shift)]).then(data =>
                           this.shifts = data[0]);
                   }
               ).catch(error => {
@@ -294,7 +298,7 @@
       }
 
     private async rmShift(day: Date, shifts: Shift[], workerId: number) {
-      var shift = new Shift();
+      let shift = new Shift();
       for (shift of shifts) {
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
           break;
@@ -472,5 +476,12 @@
     content: "";
   }
 
+  .indentText {
+    text-indent: 1em;
+  }
+
+  .commonText {
+    text-align: center;
+  }
 
 </style>

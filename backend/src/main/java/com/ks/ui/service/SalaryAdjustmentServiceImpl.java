@@ -71,7 +71,10 @@ public class SalaryAdjustmentServiceImpl implements SalaryAdjustmentService {
 
     @Override
     public void deleteById(int id){
+        SalaryAdjustment salaryAdjustment = getById(id);
         jdbcTemplate.update("DELETE FROM SALARY_ADJUSTMENT WHERE ID=?", id);
+        salaryService.addAdjustment(salaryAdjustment.getWorker().getId(), salaryAdjustment.getAdjustmentDate(),
+                salaryAdjustment.getAdjustment().negate());
     }
 
     public List<SalaryAdjustment> getByWorkerIdAndExactDate(SalaryAdjustment salaryAdjustment){

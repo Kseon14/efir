@@ -104,10 +104,7 @@
     status?: string;
   }
 
-  @Component({
-    components: {}
-  })
-
+  @Component
   export default class Workers extends Vue {
     public workers: Worker[] = [];
     public newWorker: Worker = {
