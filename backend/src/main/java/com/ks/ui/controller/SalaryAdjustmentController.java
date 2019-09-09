@@ -57,6 +57,11 @@ public class SalaryAdjustmentController {
         salaryAdjustmentService.deleteByWorkerId(workerId);
     }
 
+    @DeleteMapping("{adjustment_id}")
+    public void deleteById(@PathVariable("adjustment_id") int adjustmentId){
+        salaryAdjustmentService.deleteById(adjustmentId);
+    }
+
     @PutMapping
     public void update(@RequestBody SalaryAdjustment salaryAdjustment) {
         salaryAdjustmentService.update(salaryAdjustment);

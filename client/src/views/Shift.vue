@@ -62,9 +62,10 @@
         <td>  <input type=submit value="+ −" class="shiftButton" @click="selectWorkerId(shift.worker.id)"> </td>
       </tr>
       <tr :class="{ opened: shift.contentVisible }"  v-for="adj in adjustments[shift.worker.id]" v-if="shift.contentVisible">
-        <td>{{adj.adjustmentNote}}</td>
-        <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)">{{adj.adjustment}} </td>
+        <td><div class="commonText">{{adj.adjustmentNote}}</div></td>
+        <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div class="commonText">{{adj.adjustment}}</div></td>
         <td v-else></td>
+        <td><input type=submit class="shiftButton" @click="rmAdjustment(adj.id, adj.worker.id)" value="−"></td>
       </tr>
         <tr v-if="shift.contentVisible"></tr>
       </template>
@@ -280,6 +281,18 @@
       console.log(workerId);
     }
 
+      private async rmAdjustment(adjustmentId: number,  workerId: number) {
+          await axios.delete('/api/salaries_adjustment/' + adjustmentId)
+              .then(() => {
+                      Promise.all([this.getShifts(), this.getSalary(workerId)]).then(data =>
+                          this.shifts = data[0]);
+                  }
+              ).catch(error => {
+                  this.errorMessage = error.response.data.message
+              });
+          console.log(workerId);
+      }
+
     private async rmShift(day: Date, shifts: Shift[], workerId: number) {
       var shift = new Shift();
       for (shift of shifts) {
@@ -398,7 +411,7 @@
     background-color: white;
     border-radius: .25rem;
     padding: 1rem;
-    width: 25%;
+    width: 20%;
   }
 
   .mdl-textfield_input {
