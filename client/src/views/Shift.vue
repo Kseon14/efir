@@ -63,7 +63,7 @@
       </tr>
       <tr :class="{ opened: shift.contentVisible }"  v-for="adj in adjustments[shift.worker.id]" v-if="shift.contentVisible">
         <td><div class="indentText">>> {{adj.adjustmentNote}}</div></td>
-        <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div class="commonText">{{adj.adjustment}}</div></td>
+        <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div  v-bind:class="[getClassForAdj(adj.adjustment)]" >{{adj.adjustment}}</div></td>
         <td v-else></td>
         <td><input type=submit class="shiftButton" @click="rmAdjustment(adj.id, adj.worker.id)" value="−"></td>
       </tr>
@@ -193,6 +193,15 @@
         temp[id] = workerSalary.salary;
       }
       return temp;
+    }
+
+    private  getClassForAdj(adj : string) {
+        if (Number(adj) < 0) {
+            console.log( "red");
+            return "commonTextRed";
+        }
+        console.log("green");
+        return "commonTextGreen";
     }
 
     private async getShifts() {
@@ -407,15 +416,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0px auto 10px auto;
   }
 
   .modal-win {
     border: 1px lightslategrey solid;
     background-color: white;
     border-radius: .25rem;
-    padding: 1rem;
-    width: 20%;
+    padding: 20px;
+    width: 300px;
+    max-width: 100%;
   }
 
   .mdl-textfield_input {
@@ -480,8 +489,15 @@
     text-indent: 1em;
   }
 
-  .commonText {
+  .commonTextRed {
     text-align: center;
+    color: #dd1144;
+    font-weight: bold;
+  }
+  .commonTextGreen {
+    text-align: center;
+    color: #00b72d;
+    font-weight: bold;
   }
 
 </style>

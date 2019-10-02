@@ -196,24 +196,20 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: 98vh;
+    height: 50vh;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0px auto 10px auto;
   }
 
   .modal-win {
     border: 1px lightslategrey solid;
     background-color: white;
     border-radius: .25rem;
-    padding: 1rem;
-    width: 22%;
-    display: block;
-    /*flex-direction: column;*/
-    /*align-items: baseline;*/
-
+    padding: 20px;
+    width: 300px;
+    max-width: 100%;
   }
 
   table.worker {
