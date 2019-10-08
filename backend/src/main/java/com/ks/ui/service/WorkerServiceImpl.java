@@ -57,7 +57,7 @@ public class WorkerServiceImpl  implements WorkerService{
     @Override
     public List<Worker> getAll(){
         return jdbcTemplate.query(
-                "SELECT ID, FIRST_NAME, LAST_NAME, BASE_SALARY, STATUS  FROM WORKER", new WorkerRowMapper());
+                "SELECT ID, FIRST_NAME, LAST_NAME, BASE_SALARY, STATUS  FROM WORKER ORDER BY ID", new WorkerRowMapper());
     }
 
     @Override

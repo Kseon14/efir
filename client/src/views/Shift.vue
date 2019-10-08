@@ -381,9 +381,8 @@
     font-family: 'Open Sans', sans-serif;
     width: 60%;
     border-collapse: collapse;
-    margin-left: 10px;
-    margin-right: 30px;
     border-spacing: 0;
+    margin: 0 auto;
   }
 
   table.shift th {
