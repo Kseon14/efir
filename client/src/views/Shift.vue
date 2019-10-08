@@ -1,7 +1,6 @@
 <template>
   <div class="shift">
-    <h3>Shifts for
-
+    <h3>Shifts in
       <select v-model="selectedMonth" v-on:change="getAll()">
         <option v-for="option in getMonthList(new Date().getFullYear())" v-bind:value="option.value">
           {{ option.text }}
@@ -32,17 +31,17 @@
         </div>
         <section>
           <br>
-          <button @click="addAdjustment = !addAdjustment">Close</button>&nbsp;
+          <button v-on:click="addAdjustment = !addAdjustment; newAdjustment = {}">Close</button>&nbsp;
           <button id="new-item-edit" @click="createAdjustment" >Ok</button>
         </section>
         <p class="error">{{errorMessage}}</p>
       </div>
     </div>
-
-    <table id="firstTable" class="shift">
+    <div class="over">
+    <table id="shiftTable" class="shift">
       <thead>
       <tr>
-        <th>Name</th>
+        <th></th>
         <th v-for="row in days">
           {{row.getDate()}}
         </th>
@@ -50,28 +49,34 @@
       </thead>
       <tbody>
       <template v-for="shift in shifts">
-      <tr >
-        <td  v-bind:class="{ opened: shift.contentVisible, names: true }" v-on:click="shift.contentVisible = !shift.contentVisible; getAdjustment(shift);">
-          {{shift.worker.lastName}} {{shift.worker.firstName}}
-        </td>
-        <td v-for="day in days" v-bind:class="{filled : compareDate(day, shift.shifts),currentDay :isCurrentDay(day)}" >
-          <input v-if="!compareDate(day, shift.shifts)" type=submit value="+" class="shiftButton" @click="addShift(day, shift.worker.id)">
-          <input v-else type=submit value="-" class="shiftButton" @click="rmShift(day, shift.shifts, shift.worker.id)">
-        </td>
-        <td>{{workersSalaries[shift.worker.id]}}</td>
-        <td>  <input type=submit value="+ −" class="shiftButton" @click="selectWorkerId(shift.worker.id)"> </td>
-      </tr>
-      <tr :class="{ opened: shift.contentVisible }"  v-for="adj in adjustments[shift.worker.id]" v-if="shift.contentVisible">
-        <td><div class="indentText">>> {{adj.adjustmentNote}}</div></td>
-        <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div  v-bind:class="[getClassForAdj(adj.adjustment)]" >{{adj.adjustment}}</div></td>
-        <td v-else></td>
-        <td><input type=submit class="shiftButton" @click="rmAdjustment(adj.id, adj.worker.id)" value="−"></td>
-      </tr>
-        <tr v-if="shift.contentVisible"></tr>
+        <tr >
+          <td  v-bind:class="{ names: true }" v-on:click="$set(shift, 'condition', !shift.condition)">
+            {{shift.worker.lastName}} {{shift.worker.firstName}}
+          </td>
+          <td v-if="!compareDate(day, shift.shifts)" v-for="day in days" v-bind:class="{
+                                               btnFilled : compareDate(day, shift.shifts) && compareAdjustmentDates(day, adjustments[shift.worker.id]),
+                                               currentDay :isCurrentDay(day),
+                                               btn : !compareDate(day, shift.shifts) && compareAdjustmentDates(day, adjustments[shift.worker.id]),
+                                               filled : compareDate(day, shift.shifts) && !compareAdjustmentDates(day, adjustments[shift.worker.id])}"
+              v-on:click="addShift(day, shift.worker.id)">+</td>
+          <td v-else v-bind:class="{btnFilled : compareDate(day, shift.shifts) && compareAdjustmentDates(day, adjustments[shift.worker.id]),
+                                               currentDay :isCurrentDay(day),
+                                               btn : !compareDate(day, shift.shifts) && compareAdjustmentDates(day, adjustments[shift.worker.id]),
+                                               filled : compareDate(day, shift.shifts) && !compareAdjustmentDates(day, adjustments[shift.worker.id])}"
+              v-on:click="rmShift(day, shift.shifts, shift.worker.id)"></td>
+          <td>{{workersSalaries[shift.worker.id]}}</td>
+          <td class="bigSign" v-on:click="selectWorkerId(shift.worker.id)">+−</td>
+        </tr>
+        <tr v-if="shift.condition && adj.adjustment" v-for="adj in adjustments[shift.worker.id]" >
+          <td><div class="indentText">>> {{adj.adjustmentNote}}</div></td>
+          <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div  v-bind:class="[getClassForAdj(adj.adjustment)]" >{{adj.adjustment}}</div></td>
+          <td v-else></td>
+          <td class="bigSign" v-on:click="rmAdjustment(adj.id, adj.worker.id)">−</td>
+        </tr>
       </template>
       </tbody>
     </table>
-
+      </div>
 
   </div>
 </template>
@@ -116,9 +121,14 @@
     public addAdjustment : boolean = false;
     public newAdjustment : Adjustment = {};
     public workerIdForAdj : number = 0;
+    public condition = false;
 
     private async created() {
       await this.getAll();
+    }
+
+    private printCondition(id : any){
+        console.log(id);
     }
 
     private async getAll(){
@@ -141,6 +151,11 @@
         console.log('work sal response', data);
         this.workersSalaries = data;
       });
+
+      this.getAdjustments().then(data => {
+          console.log('adj response', data);
+          this.adjustments = data;
+      });
     }
 
     private getCurrentMonth(){
@@ -155,28 +170,31 @@
       this.workersSalaries[Number(workerId)] = workerSalary[0].salary;
     }
 
-    private async getAdjustment(shift : any) {
-      if (!shift.contentVisible) {
-       this.adjustments[shift.worker.id] = [];
-       return ;
-      }
+    private async getAdjustment(workerId : any) {
       const temp : { [key: number]: Adjustment[]; } = {};
       const response = await axios.get(
-          '/api/salaries_adjustment?worker=' + shift.worker.id + '&date=' + [new Date().getFullYear(), ("0" + this.selectedMonth).slice(-2), '01'].join('-'));
-      let adjustments = response.data;
-      let adjustment : Adjustment;
-      for (adjustment of adjustments) {
-        let array: Adjustment[] = [];
-        let id: number = Number(adjustment.worker!.id);
-        if (temp[id] == null) {
-          temp[id] = array;
-        } else {
-          array = temp[id];
-        }
-        array.push(adjustment);
-      }
-      this.adjustments = temp;
+          '/api/salaries_adjustment?worker=' + workerId + '&date=' + [new Date().getFullYear(), ("0" + this.selectedMonth).slice(-2), '01'].join('-'));
+      this.adjustments[workerId] = response.data;
     }
+
+      private async getAdjustments() {
+          const temp: { [key: number]: Adjustment[]; } = {};
+          const response = await axios.get(
+              '/api/salaries_adjustment?date=' + [new Date().getFullYear(), ("0" + this.selectedMonth).slice(-2), '01'].join('-'));
+          let adjustments = response.data;
+          let adjustment: Adjustment;
+          for (adjustment of adjustments) {
+              let array: Adjustment[] = [];
+              let id: number = Number(adjustment.worker!.id);
+              if (temp[id] == null) {
+                  temp[id] = array;
+              } else {
+                  array = temp[id];
+              }
+              array.push(adjustment);
+          }
+          return temp;
+      }
 
     private async getSalaries(){
       const temp = {...this.workersSalaries};
@@ -215,9 +233,7 @@
       if (shifts && shifts.length && shifts[0].shiftDate === null) {
           return false;
       }
-
-      let shift;
-      for (shift of shifts) {
+      for (let shift of shifts) {
         if (day.getDate() == new Date(shift.shiftDate).getDate()) {
           return true;
         }
@@ -234,6 +250,24 @@
       }
       return false
     }
+
+      private compareAdjustmentDates(day: Date, adjustments: any) {
+          if (!adjustments || !adjustments.length) {
+              return false;
+          }
+          for(let adj of adjustments) {
+              if (!adj) {
+                  return;
+              }
+              if (adj.adjustmentDate === null) {
+                  continue;
+              }
+              if (day.getDate() == new Date(adj.adjustmentDate + "").getDate()) {
+                  return true;
+              }
+          }
+          return false
+      }
 
     private isCurrentDay(day: Date) {
       return new Date().getDate() == day.getDate() && new Date().getMonth() == day.getMonth();
@@ -261,7 +295,7 @@
 
         await axios.post('/api/salaries_adjustment', adjustment)
             .then(() => {
-                    Promise.all([this.getShifts(), this.getSalary(worker.id), this.getAdjustment(shift)]).then(data =>
+                    Promise.all([this.getShifts(), this.getSalary(worker.id), this.getAdjustment(worker.id)]).then(data =>
                         this.shifts = data[0]);
                 }
             ).catch(error => {
@@ -297,13 +331,14 @@
         shift.worker = worker;
           await axios.delete('/api/salaries_adjustment/' + adjustmentId)
               .then(() => {
-                      Promise.all([this.getShifts(), this.getSalary(workerId), this.getAdjustment(shift)]).then(data =>
+                      Promise.all([this.getShifts(), this.getSalary(workerId), this.getAdjustments()]).then(data =>
                           this.shifts = data[0]);
                   }
               ).catch(error => {
                   this.errorMessage = error.response.data.message
               });
           console.log(workerId);
+          this.getAdjustment(workerId)
       }
 
     private async rmShift(day: Date, shifts: Shift[], workerId: number) {
@@ -333,14 +368,11 @@
         date.setDate(date.getDate() + 1);
       }
     }
-
       private selectWorkerId(workerId: number){
           this.addAdjustment = !this.addAdjustment;
           console.log(workerId);
           this.workerIdForAdj = workerId;
       }
-
-
   }
 
 </script>
@@ -349,7 +381,8 @@
     font-family: 'Open Sans', sans-serif;
     width: 60%;
     border-collapse: collapse;
-    margin: 0 auto;
+    margin-left: 10px;
+    margin-right: 30px;
     border-spacing: 0;
   }
 
@@ -369,8 +402,9 @@
     border-top: 1px solid rgba(170, 179, 232, 0.17);
     border-right: 1px solid rgba(170, 179, 232, 0.17);
     min-width: 25px;
-    text-align: left;
-    height: 28px;
+    text-align: center;
+    height: 25px;
+    cursor: default;
   }
 
   table.shift td:hover {
@@ -385,16 +419,13 @@
     background-color: #206600;
   }
 
-  input.shiftButton {
-    align-self: center;
-    background: transparent;
-    border: 1px salmon;
-    text-align: center;
-    font-size: 13px;
-    text-decoration: none;
-    transition-duration: 0.4s;
-    width: 100%;
-    height: 100%;
+  .bigSign {
+    font-size: 120%;
+    min-width: 45px;
+  }
+
+  .salary {
+    background: yellow;
   }
 
   .opened {
@@ -407,15 +438,15 @@
   }
 
   .modal-bg {
-    /*background-color: rgba(0,0,0, 0.5);*/
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 50vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: rgba(0,0,0, 0.5);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .over{
+    overflow: auto;
   }
 
   .modal-win {
@@ -425,6 +456,7 @@
     padding: 20px;
     width: 300px;
     max-width: 100%;
+
   }
 
   .mdl-textfield_input {
@@ -498,6 +530,17 @@
     text-align: center;
     color: #00b72d;
     font-weight: bold;
+  }
+
+  table.shift td.btnFilled {
+    background: linear-gradient(to right bottom, #206600 50%, #42b983 50%);
+    color: white;
+    border: none;
+  }
+
+  table.shift td.btn {
+    background: linear-gradient(to right bottom, #ffffff 50%, #42b983 50%);
+    color: black;
   }
 
 </style>

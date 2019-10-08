@@ -45,7 +45,7 @@ public class SalaryServiceImpl implements SalaryService{
     public Integer create(Salary salary){
         salary.setCreatedDate(new Date());
         List<Salary> dbSalary = getByWorkerIdAndDate(salary.getWorker().getId(), salary.getSalaryDate());
-        if (dbSalary != null) {
+        if (!dbSalary.isEmpty()) {
             return dbSalary.get(0).getId();
         }
         SimpleDateFormat sdf = Utils.getSdf();
@@ -121,11 +121,15 @@ public class SalaryServiceImpl implements SalaryService{
         if (worker == null){
             return;
         }
-        Salary dbSalary = getByWorkerIdAndDate(workerId, date).get(0);
+        List<Salary> dbSalary = getByWorkerIdAndDate(workerId, date);
+        if (dbSalary.isEmpty()) {
+            create(new Salary(workerId, date));
+            dbSalary = getByWorkerIdAndDate(workerId, date);
+        }
         jdbcTemplate.update("UPDATE SALARY SET " +
                         "SALARY= coalesce(?, SALARY) " +
                         "WHERE ID=?",
-              dbSalary.getSalary().add(adjustment), dbSalary.getId());
+              dbSalary.get(0).getSalary().add(adjustment), dbSalary.get(0).getId());
     }
 
     @Override
@@ -138,14 +142,13 @@ public class SalaryServiceImpl implements SalaryService{
                 .addValue("workerId", workerId)
                 .addValue("year", year)
                 .addValue("month", month);
-        List<Salary> salaries = namedParameterJdbcTemplate.query(
+        return namedParameterJdbcTemplate.query(
                 "SELECT ID, WORKER_ID, SALARY, CREATED_DATE, SALARY_DATE "
                         + "FROM SALARY "
                         + "WHERE WORKER_ID =:workerId "
                         + "AND YEAR(SALARY_DATE) = :year "
                         + "AND MONTH(SALARY_DATE) = :month" ,
                 namedParameters, new SalaryRowMapper());
-        return CollectionUtils.isEmpty(salaries) ? null : salaries;
     }
 
 
@@ -158,14 +161,13 @@ public class SalaryServiceImpl implements SalaryService{
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("year", year)
                 .addValue("month", month);
-        List<Salary> salaries = namedParameterJdbcTemplate.query(
+       return namedParameterJdbcTemplate.query(
                 "SELECT s.ID, w.ID as WORKER_ID, s.SALARY, s.SALARY_DATE "
                         + "FROM WORKER w "
                         + "LEFT JOIN SALARY s ON w.ID = s.WORKER_ID "
                         + "AND YEAR(s.SALARY_DATE) = :year "
                         + "AND MONTH(s.SALARY_DATE) = :month" ,
                 namedParameters, new SalaryRowMapper());
-        return CollectionUtils.isEmpty(salaries) ? null : salaries;
     }
 
 

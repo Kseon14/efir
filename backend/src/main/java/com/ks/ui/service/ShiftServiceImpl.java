@@ -104,7 +104,8 @@ public class ShiftServiceImpl implements ShiftService{
                         + "FROM SHIFT sh "
                         + "RIGHT JOIN WORKER w on w.ID = sh.WORKER_ID "
                         + "AND YEAR(sh.SHIFT_DATE) = :year "
-                        + "AND MONTH(sh.SHIFT_DATE) = :month ",
+                        + "AND MONTH(sh.SHIFT_DATE) = :month "
+                        + "WHERE MONTH(w.CREATE_DATE) <= :month ",
                 namedParameters, new ShiftRowMapper());
         return convertToShiftDTOs(shifts);
     }

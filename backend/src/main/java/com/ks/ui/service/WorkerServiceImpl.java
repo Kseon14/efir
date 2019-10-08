@@ -39,6 +39,7 @@ public class WorkerServiceImpl  implements WorkerService{
     @Override
     public void delete(int id){
         jdbcTemplate.update("DELETE FROM SALARY WHERE WORKER_ID=?", id);
+        jdbcTemplate.update("DELETE FROM SALARY_ADJUSTMENT WHERE WORKER_ID=?", id);
         jdbcTemplate.update("DELETE FROM SHIFT WHERE WORKER_ID=?", id);
         jdbcTemplate.update("DELETE FROM WORKER WHERE ID=?", id);
 

@@ -24,7 +24,7 @@
           </div>
           <section>
             <br>
-            <button @click="modalCreate = !modalCreate">Close</button>&nbsp;
+            <button  v-on:click="modalCreate = !modalCreate; newWorker ={}">Close</button>&nbsp;
             <button id="new-item-add" @click="createWorker">Add</button>
           </section>
           <p class="error">{{errorMessage}}</p>
@@ -65,7 +65,8 @@
       </div>
 
     </section>
-    <table id="firstTable" class="worker">
+    <div class="over">
+    <table id="workrTable" class="worker">
       <thead>
       <tr>
         <th>ID</th>
@@ -88,6 +89,7 @@
       </tr>
       </tbody>
     </table>
+    </div>
   </div>
 
 </template>
@@ -107,9 +109,7 @@
   @Component
   export default class Workers extends Vue {
     public workers: Worker[] = [];
-    public newWorker: Worker = {
-      status: 'ACTIVE'
-    };
+    public newWorker: Worker = {};
     public selectedWorker = {};
     public errorMessage:string = "";
 
@@ -133,6 +133,7 @@
       }catch (e) {
         this.errorMessage = e
       }
+      this.newWorker.status = 'ACTIVE';
       await axios.post('/api/workers', this.newWorker)
         .then(()=> {
           this.getWorkers();
@@ -140,6 +141,7 @@
           this.newWorker = {};
         }
       ).catch(error => {this.errorMessage = error.response.data.message});
+        this.newWorker = {};
     }
 
     private async deleteWorker(idUser: any) {
@@ -193,14 +195,14 @@
 
   .modal-bg {
     /*background-color: rgba(0,0,0, 0.5);*/
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 50vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .over{
+    overflow: auto;
   }
 
   .modal-win {
@@ -210,6 +212,7 @@
     padding: 20px;
     width: 300px;
     max-width: 100%;
+    align-self: center;
   }
 
   table.worker {

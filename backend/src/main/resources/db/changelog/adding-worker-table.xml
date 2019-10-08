@@ -21,4 +21,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="adding CREATE_DATE column" author="kseon">
+        <addColumn tableName="WORKER">
+            <column name="CREATE_DATE" type="datetime" defaultValueDate="CURRENT_TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
