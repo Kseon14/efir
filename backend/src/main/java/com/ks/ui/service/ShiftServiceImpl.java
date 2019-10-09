@@ -119,7 +119,7 @@ public class ShiftServiceImpl implements ShiftService{
             shiftDTO.setShifts(entry.getValue());
             shiftDTOS.add(shiftDTO);
         }
-        return shiftDTOS;
+        return shiftDTOS.stream().sorted().collect(Collectors.toList());
     }
 
     private Shift getByWorkerIdAndDate(int workerId, Date date){
