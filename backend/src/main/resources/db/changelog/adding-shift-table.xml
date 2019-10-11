@@ -23,4 +23,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="adding column SHIFT_STATE to SHIFT table" author="kseon">
+        <addColumn tableName="SHIFT">
+            <column name="SHIFT_STATE" type="nvarchar(50)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

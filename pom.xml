@@ -83,7 +83,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.ks.ui.UiApplication</mainClass>
+                    <mainClass>com.ks.efir.UiApplication</mainClass>
                 </configuration>
             </plugin>
 
