@@ -1,5 +1,6 @@
 package com.ks.efir.service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,8 +24,10 @@ import org.springframework.stereotype.Service;
 
 import com.ks.efir.rowmapper.ShiftRowMapper;
 import com.ks.efir.vo.Salary;
+import com.ks.efir.vo.SalaryAdjustment;
 import com.ks.efir.vo.Shift;
 import com.ks.efir.vo.ShiftDTO;
+import com.ks.efir.vo.State;
 
 @Service
 public class ShiftServiceImpl implements ShiftService{
@@ -34,13 +37,15 @@ public class ShiftServiceImpl implements ShiftService{
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final SalaryService salaryService;
+    private final SalaryAdjustmentService salaryAdjustmentService;
 
     @Autowired
     public ShiftServiceImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate,
-            SalaryService salaryService) {
+            SalaryService salaryService, SalaryAdjustmentService salaryAdjustmentService) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.salaryService = salaryService;
+        this.salaryAdjustmentService = salaryAdjustmentService;
     }
 
     @Override
@@ -53,7 +58,7 @@ public class ShiftServiceImpl implements ShiftService{
         int workerId = shift.getWorker().getId();
         String formattedDate = sdf.format(shift.getShiftDate());
         jdbcTemplate.update("INSERT INTO SHIFT (WORKER_ID, CREATED_DATE, SHIFT_DATE, SHIFT_STATE) VALUES (?,?,?,?)",
-                workerId, shift.getCreatedDate(), formattedDate, Shift.State.UNPAID.name());
+                workerId, shift.getCreatedDate(), formattedDate, State.UNPAID.name());
         salaryService.update(new Salary(workerId, shift.getShiftDate()));
     }
 
@@ -117,13 +122,19 @@ public class ShiftServiceImpl implements ShiftService{
     public void closeShift(Shift shift) {
         int workerId = shift.getWorker().getId();
         Date date = shift.getShiftDate();
-        List<Shift> shifts = getByWorkerIdAndDateAndState(workerId, date, Shift.State.UNPAID);
-        updateState(shifts.stream().map(Shift::getId).collect(Collectors.toList()), Shift.State.PAID_OUT);
+        List<Shift> shifts = getByWorkerIdAndDateAndState(workerId, date, State.UNPAID);
+        updateState(shifts.stream().map(Shift::getId).collect(Collectors.toList()), State.PAID_OUT);
         salaryService.reduce(workerId, date, shifts.size());
-
+        List<SalaryAdjustment> salaryAdjustments = salaryAdjustmentService.getByWorkerIdAndSateBeforeDate(date, workerId, State.UNPAID);
+        if (CollectionUtils.isNotEmpty(salaryAdjustments)) {
+            salaryAdjustmentService.updateState(salaryAdjustments.stream().map(SalaryAdjustment::getId).collect(Collectors.toList()), State.PAID_OUT);
+            BigDecimal sum = salaryAdjustments.stream().map(SalaryAdjustment::getAdjustment).reduce(BigDecimal.ZERO,
+                    BigDecimal::add);
+            salaryService.addAdjustment(workerId, date, sum.negate());
+        }
     }
 
-    private void updateState(Collection<Integer> shiftIds, Shift.State state){
+    private void updateState(Collection<Integer> shiftIds, State state){
         if (CollectionUtils.isEmpty(shiftIds)) {
             return;
         }
@@ -137,7 +148,7 @@ public class ShiftServiceImpl implements ShiftService{
                 namedParameters);
     }
 
-    private List<Shift> getByWorkerIdAndDateAndState(int workerId, Date date, Shift.State state){
+    private List<Shift> getByWorkerIdAndDateAndState(int workerId, Date date, State state){
         LOGGER.info("Date: {}", date);
         LocalDate localDate = Utils.getLocalDate(date);
         int month = localDate.getMonthValue();

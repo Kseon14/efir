@@ -56,9 +56,12 @@
             <td v-else v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
               <div class="dropdown">&#8203;
                 <div class="dropdown-content">
+                  <div v-if="!compareShiftState(day, workerShifts.shifts)">
                   <a href="#" v-on:click="rmShift(day, workerShifts.shifts, workerShifts.worker.id)">-</a>
                   <a href="#" v-on:click="closeShift(day, workerShifts.worker.id)">close shift</a>
-                  <a href="#" v-on:click="selectWorkerId(day, workerShifts.worker.id)">adjustment</a>
+                  <a v-if="!compareAdjustmentDates(day, adjustments[workerShifts.worker.id])"
+                     href="#" v-on:click="selectWorkerId(day, workerShifts.worker.id)">adjustment</a>
+                  </div>
                 </div>
               </div>
             </td>
@@ -68,7 +71,7 @@
             <td><div >>> {{adj.adjustmentNote}}</div></td>
             <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div v-bind:class="[getClassForAdj(adj.adjustment)]" >{{adj.adjustment}}</div></td>
             <td v-else></td>
-            <td class="bigSign" v-on:click="rmAdjustment(adj.id, adj.worker.id)">−</td>
+            <td v-if="!compareShiftState(new Date(adj.adjustmentDate), workerShifts.shifts)" class="bigSign" v-on:click="rmAdjustment(adj.id, adj.worker.id)">−</td>
           </tr>
         </template>
         </tbody>
@@ -123,10 +126,6 @@
             await this.getAll();
         }
 
-        private printCondition(id : any){
-            console.log(id);
-        }
-
         private async getAll(){
             let month = localStorage.getItem("selectedMonth");
             console.log(month);
@@ -164,11 +163,11 @@
                 classes = "currentDay "
             }
             if (this.compareShiftState(day, workerShifts.shifts)) {
-               if (this.compareAdjustmentDates(day, adjustments[workerShifts.worker.id!])) {
-                   return  classes + "gradientFilledPaid "
-               } else {
-                   classes = classes + "paidOut "
-               }
+                if (this.compareAdjustmentDates(day, adjustments[workerShifts.worker.id!])) {
+                    return  classes + "gradientFilledPaid "
+                } else {
+                    classes = classes + "paidOut "
+                }
             }
             if (this.compareAdjustmentDates(day, adjustments[workerShifts.worker.id!])) {
                 if (this.compareDate(day, workerShifts.shifts)) {
@@ -216,6 +215,10 @@
                 array.push(adjustment);
             }
             return temp;
+        }
+
+        private isPaid(entity : any){
+            return entity.state == "PAID_OUT"
         }
 
         private async getSalaries(){

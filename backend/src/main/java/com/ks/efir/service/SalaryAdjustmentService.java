@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.ks.efir.vo.SalaryAdjustment;
+import com.ks.efir.vo.State;
 
 public interface SalaryAdjustmentService {
 
@@ -17,10 +18,14 @@ public interface SalaryAdjustmentService {
 
     List<SalaryAdjustment> getByWorkerIdAndExactDate(SalaryAdjustment salaryAdjustment);
 
+    List<SalaryAdjustment> getByWorkerIdAndSateBeforeDate(Date date, int workerId, State state);
+
     List<SalaryAdjustment> getAllByDate(Date date);
 
     void update(SalaryAdjustment salaryAdjustment);
 
     SalaryAdjustment getById(int id);
+
+    void updateState(List<Integer> ids, State state);
 
 }

@@ -20,4 +20,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="adding column ADJUSTMENT_STATE to SALARY_ADJUSTMENT table" author="kseon">
+        <addColumn tableName="SALARY_ADJUSTMENT">
+            <column name="ADJUSTMENT_STATE" type="nvarchar(50)"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

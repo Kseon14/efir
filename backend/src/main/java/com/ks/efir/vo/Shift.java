@@ -52,11 +52,6 @@ public class Shift implements Serializable {
     @Getter @Setter
     private State state;
 
-    public enum State {
-        PAID_OUT,
-        UNPAID
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)

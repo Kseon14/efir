@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.ks.efir.service.Utils;
 import com.ks.efir.vo.Shift;
+import com.ks.efir.vo.State;
 import com.ks.efir.vo.Worker;
 
 public class ShiftRowMapper implements RowMapper<Shift> {
@@ -37,7 +38,7 @@ public class ShiftRowMapper implements RowMapper<Shift> {
 
             shift.setShiftDate(convertedDate);
         }
-        shift.setState(EnumUtils.getEnum(Shift.State.class, rs.getString("SHIFT_STATE")));
+        shift.setState(EnumUtils.getEnum(State.class, rs.getString("SHIFT_STATE")));
         return shift;
     }
 }

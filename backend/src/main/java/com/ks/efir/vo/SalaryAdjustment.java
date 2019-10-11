@@ -56,6 +56,9 @@ public class SalaryAdjustment {
     @Getter @Setter
     private String adjustmentNote;
 
+    @Getter @Setter
+    private State state;
+
     public SalaryAdjustment(@NotBlank int worker, Date deductionDate) {
         this.worker = new Worker(worker);
         this.adjustmentDate = deductionDate;
