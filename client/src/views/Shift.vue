@@ -45,24 +45,20 @@
             <td  v-bind:class="{ names: true }" v-on:click="$set(workerShifts, 'condition', !workerShifts.condition)">
               {{workerShifts.worker.lastName}} {{workerShifts.worker.firstName}}
             </td>
-            <td v-if="!compareDate(day, workerShifts.shifts)" v-for="day in days" v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
-              <div class="dropdown">&#8203;
-                <div class="dropdown-content">
+            <td v-for="day in days" v-on:click="clickMenu(day, workerShifts.worker.id)">
+              <div v-if="!compareDate(day, workerShifts.shifts)"  v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
+               <div v-bind:class="[getClass(workerShifts.worker.id, day)]">
                   <a href="#" v-on:click="addShift(day, workerShifts.worker.id)">+</a>
                   <a href="#" v-on:click="selectWorkerId(day, workerShifts.worker.id)">adjustment</a>
-                </div>
               </div>
-            </td>
-            <td v-else v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
-              <div class="dropdown">&#8203;
-                <div class="dropdown-content">
-                  <div v-if="!compareShiftState(day, workerShifts.shifts)">
+              </div>
+              <div v-else v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
+              <div v-bind:class="[getClass(workerShifts.worker.id, day)]" v-if="!compareShiftState(day, workerShifts.shifts)">
                   <a href="#" v-on:click="rmShift(day, workerShifts.shifts, workerShifts.worker.id)">-</a>
                   <a href="#" v-on:click="closeShift(day, workerShifts.worker.id)">close shift</a>
                   <a v-if="!compareAdjustmentDates(day, adjustments[workerShifts.worker.id])"
                      href="#" v-on:click="selectWorkerId(day, workerShifts.worker.id)">adjustment</a>
-                  </div>
-                </div>
+              </div>
               </div>
             </td>
             <td>{{workersSalaries[workerShifts.worker.id]}}</td>
@@ -120,10 +116,30 @@
         public adjustments: { [key: number]: Adjustment[]; } = {};
         public addAdjustment : boolean = false;
         public newAdjustment : Adjustment = {};
-        public condition = false;
+        public tds: boolean [] = [];
 
         private async created() {
             await this.getAll();
+        }
+
+        private clickMenu(day: Date, id: any) {
+            let key =  (id * id +  day.getDate()) * id;
+
+            for (let i = 0; i < this.tds.length; i++) {
+                if (i != key) {
+                    this.tds[i] = false;
+                }
+            }
+            Vue.set(this.tds, key, !this.tds[key]);
+        }
+
+        private getClass(wokerId: number, day: Date) {
+            let flag = this.tds[(wokerId * wokerId + day.getDate()) * wokerId];
+            if (flag) {
+                return "dropdownShow";
+            } else {
+                return "dropdown"
+            }
         }
 
         private async getAll(){
@@ -234,6 +250,9 @@
                     continue;
                 }
                 temp[id] = workerSalary.salary;
+                for(let day of this.days) {
+                    this.tds[(id*id + day.getDate())* id] = false;
+                }
             }
             return temp;
         }
@@ -433,7 +452,8 @@
     width: 60%;
     border-collapse: collapse;
     border-spacing: 0;
-    margin: 0 auto;
+    margin-left:auto;
+    margin-right:auto;
   }
 
   table.shift th {
@@ -447,58 +467,36 @@
   }
 
   table.shift td {
-    padding: 1px;
+    position: relative;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     border-top: 1px solid rgba(170, 179, 232, 0.17);
     border-right: 1px solid rgba(170, 179, 232, 0.17);
-    min-width: 25px;
     text-align: center;
-    height: 25px;
     cursor: default;
+    min-width: 25px;
+    min-height: 30px;
   }
 
   table.shift td:hover {
     background-color: #42b983;
   }
 
-  td.currentDay {
-    background-color: #ff6500;
-  }
-
-  td.filled {
-    background-color: #206600;
-  }
-
-
-  .bigSign {
-    font-size: 120%;
-    min-width: 45px;
-  }
-
-  .salary {
-    background: yellow;
-  }
-
-  .opened {
-    background-color: #dddddd;
-  }
   table.shift td.names {
     min-width: 150px;
     text-align: left;
-    min-height: 40px;
   }
 
   .modal-bg {
-    background-color: rgba(0,0,0, 0.5);
+    /*background-color: rgba(0,0,0, 0.5);*/
     position: fixed;
     top: 25%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 2;
   }
 
   .over{
     overflow: auto;
-    min-height: 300px;
   }
 
   .modal-win {
@@ -508,7 +506,6 @@
     padding: 20px;
     width: 300px;
     max-width: 100%;
-
   }
 
   .mdl-textfield_input {
@@ -580,48 +577,104 @@
     font-weight: bold;
   }
 
-  table.shift td.gradientFilled {
+  .currentDay {
+    background-color: #ff6500;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+
+  .filled {
+    background-color: #206600;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+  .bigSign {
+    font-size: 120%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+
+  .gradientFilled {
     background: linear-gradient(to right bottom, #206600 50%, #42b983 50%);
     color: white;
     border: none;
-    height:100%
+
+    height:100%;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
   }
 
-  table.shift td.gradientFilledPaid {
+  .gradientFilledPaid {
     background: linear-gradient(to right bottom, #fff400 50%, #42b983 50%);
     color: white;
     border: none;
-    height:100%
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
   }
 
-  table.shift td.gradient {
+  .gradient {
     background: linear-gradient(to right bottom, #ffffff 50%, #42b983 50%);
     color: black;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
   }
 
   .dropdown {
-  }
-
-  .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f1f1f1;
-    min-width: 60px;
+    min-width: 90px;
     z-index: 1;
   }
 
-  .dropdown-content a {
+
+  .dropdown a {
     color: black;
-    padding: 2px;
+    padding: 3px;
     text-decoration: none;
     display: block;
   }
 
-  .dropdown-content a:hover {background-color: #ddd;}
-  .dropdown:hover .dropdown-content {display: block;}
+  .dropdownShow {
+    display: block;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 90px;
+    z-index: 1;
+  }
 
-  td.paidOut {
+  .dropdownShow a {
+    color: black;
+    padding: 3px;
+    text-decoration: none;
+    display: block;
+  }
+
+  .paidOut {
     background-color: #fff400;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
   }
 
 </style>
