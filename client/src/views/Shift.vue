@@ -1,5 +1,5 @@
 <template>
-  <div class="shift">
+  <div class="shifts">
     <h3>Shifts in
       <select v-model="selectedMonth" v-on:change="getAll()">
         <option v-for="option in getMonthList(new Date().getFullYear())" v-bind:value="option.value">
@@ -30,27 +30,24 @@
       </div>
     </div>
     <div class="over">
-      <table id="shiftTable" class="shift">
-        <thead>
-        <tr>
-          <th></th>
-          <th v-for="row in days">
+      <div id="shiftTable" class="shift">
+        <div class="shiftTh">
+          <div class="shiftTd"></div>
+          <div class="shiftTd" v-for="row in days">
             {{row.getDate()}}
-          </th>
-        </tr>
-        </thead>
-        <tbody>
+          </div>
+        </div>
         <template v-for="workerShifts in shifts">
-          <tr >
-            <td  v-bind:class="{ names: true }" v-on:click="$set(workerShifts, 'condition', !workerShifts.condition)">
+          <div class="shiftTr">
+            <div class="shiftTd"  v-bind:class="{ names: true }" v-on:click="$set(workerShifts, 'condition', !workerShifts.condition)">
               {{workerShifts.worker.lastName}} {{workerShifts.worker.firstName}}
-            </td>
-            <td v-for="day in days" v-on:click="clickMenu(day, workerShifts.worker.id)">
+            </div>
+            <div class="shiftTd" v-for="day in days" v-on:click="clickMenu(day, workerShifts.worker.id)">
               <div v-if="!compareDate(day, workerShifts.shifts)"  v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
-               <div v-bind:class="[getClass(workerShifts.worker.id, day)]">
+                <div v-bind:class="[getClass(workerShifts.worker.id, day)]">
                   <a href="#" v-on:click="addShift(day, workerShifts.worker.id)">+</a>
                   <a href="#" v-on:click="selectWorkerId(day, workerShifts.worker.id)">adjustment</a>
-              </div>
+                </div>
               </div>
               <div v-else v-bind:class="[getClassForTd(day, workerShifts, adjustments)]">
               <div v-bind:class="[getClass(workerShifts.worker.id, day)]" v-if="!compareShiftState(day, workerShifts.shifts)">
@@ -60,28 +57,27 @@
                      href="#" v-on:click="selectWorkerId(day, workerShifts.worker.id)">adjustment</a>
               </div>
               </div>
-            </td>
-            <td>{{workersSalaries[workerShifts.worker.id]}}</td>
-          </tr>
-          <tr v-if="workerShifts.condition && adj.adjustment" v-for="adj in adjustments[workerShifts.worker.id]" >
-            <td><div >>> {{adj.adjustmentNote}}</div></td>
-            <td v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div v-bind:class="[getClassForAdj(adj.adjustment)]" >{{adj.adjustment}}</div></td>
-            <td v-else></td>
-            <td v-if="!compareShiftState(new Date(adj.adjustmentDate), workerShifts.shifts)" class="bigSign" v-on:click="rmAdjustment(adj.id, adj.worker.id)">−</td>
-          </tr>
+            </div>
+            <div class="shiftTd">{{workersSalaries[workerShifts.worker.id]}}</div>
+          </div>
+          <div class="shiftTr" v-if="workerShifts.condition && adj.adjustment" v-for="adj in adjustments[workerShifts.worker.id]" >
+            <div class="shiftTd"><div >>> {{adj.adjustmentNote}}</div></div>
+            <div class="shiftTd" v-for="day in days" v-if="compareAdjustmentDate(day, adj.adjustmentDate)"><div v-bind:class="[getClassForAdj(adj.adjustment)]" >{{adj.adjustment}}</div></div>
+              <div class="shiftTd" v-else></div>
+            <div class="shiftTd" v-if="!compareShiftState(new Date(adj.adjustmentDate), workerShifts.shifts)" v-on:click="rmAdjustment(adj.id, adj.worker.id)">−</div>
+          </div>
         </template>
-        </tbody>
-      </table>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-    import {Component, Vue} from 'vue-property-decorator'
-    import axios from 'axios';
-    import {Worker} from './Worker.vue';
+  import {Component, Vue} from 'vue-property-decorator'
+  import axios from 'axios';
+  import {Worker} from './Worker.vue';
 
-    export interface ShiftUser {
+  export interface ShiftUser {
         worker: Worker;
         shifts: Shift[];
     }
@@ -106,6 +102,12 @@
         adjustmentNote?: string;
     }
 
+    export class TemporaryHolderMenuParams{
+      day?: Date;
+      workerShifts?: ShiftUser;
+    }
+
+
     @Component
     export default class Shifts extends Vue {
         public shifts: ShiftUser[] = [];
@@ -123,7 +125,7 @@
         }
 
         private clickMenu(day: Date, id: any) {
-            let key =  (id * id +  day.getDate()) * id;
+            let key = Number(id +''+ day.getDate());
 
             for (let i = 0; i < this.tds.length; i++) {
                 if (i != key) {
@@ -134,7 +136,7 @@
         }
 
         private getClass(wokerId: number, day: Date) {
-            let flag = this.tds[(wokerId * wokerId + day.getDate()) * wokerId];
+            let flag = this.tds[Number(wokerId +''+ day.getDate())];
             if (flag) {
                 return "dropdownShow";
             } else {
@@ -447,26 +449,34 @@
 
 </script>
 <style>
-  table.shift {
+  .shift {
     font-family: 'Open Sans', sans-serif;
-    width: 60%;
+    /*width: 60%;*/
     border-collapse: collapse;
     border-spacing: 0;
     margin-left:auto;
     margin-right:auto;
+    display: table;
+    /*display: block;*/
   }
 
-  table.shift th {
+  .shiftTh {
+    display: table-row;
     padding: 5px;
     min-width: 10px;
     text-align: center;
   }
 
-  tr:hover {
+  .shiftTr:hover {
     background-color: #f5f5f5;
   }
 
-  table.shift td {
+  .shiftTr {
+    display: table-row;
+  }
+
+  .shiftTd {
+    display: table-cell;
     position: relative;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
     border-top: 1px solid rgba(170, 179, 232, 0.17);
@@ -477,11 +487,11 @@
     min-height: 30px;
   }
 
-  table.shift td:hover {
+  .shiftTd:hover {
     background-color: #42b983;
   }
 
-  table.shift td.names {
+  .shiftTd.names {
     min-width: 150px;
     text-align: left;
   }
@@ -497,6 +507,7 @@
 
   .over{
     overflow: auto;
+    height: 300px;
   }
 
   .modal-win {
@@ -658,6 +669,8 @@
     position: absolute;
     background-color: #f1f1f1;
     min-width: 90px;
+    left: 10px;
+    top: 10px;
     z-index: 1;
   }
 
