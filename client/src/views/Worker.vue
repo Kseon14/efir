@@ -196,7 +196,7 @@
   .modal-bg {
     /*background-color: rgba(0,0,0, 0.5);*/
     position: fixed;
-    top: 50%;
+    top: 25%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
@@ -221,7 +221,8 @@
     min-width:600px;
     border-collapse: collapse;
     border-bottom: 1px solid rgba(170, 179, 232, 0.17);
-    margin: 0 auto;
+    margin-left:auto;
+    margin-right:auto;
   }
 
   table.worker th {

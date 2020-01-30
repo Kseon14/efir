@@ -44,6 +44,9 @@ public class SalaryAdjustmentServiceImpl implements SalaryAdjustmentService {
 
     @Override
     public Integer create(SalaryAdjustment salaryAdjustment){
+        if (salaryAdjustment.getAdjustment().equals(BigDecimal.ZERO)) {
+            return 0;
+        }
         salaryAdjustment.setCreatedDate(new Date());
         List<SalaryAdjustment> dbSalaryAdjustment = getByWorkerIdAndExactDate(salaryAdjustment);
         if (CollectionUtils.isNotEmpty(dbSalaryAdjustment)) {
