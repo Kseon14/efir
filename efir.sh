@@ -1,44 +1,42 @@
-#!/bin/bash
-
-DESC="efir server"
-NAME=efir
-PIDFILE=/var/run/$NAME.pid
-RUN_AS=pi
-COMMAND="/usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/bin/java -- -jar /opt/efir/backend-0.0.1-SNAPSHOT.jar"
-
-d_start() {
-    start-stop-daemon --start --quiet --background --make-pidfile --pidfile $PIDFILE --chuid $RUN_AS --exec $COMMAND
-}
-
-d_stop() {
-    start-stop-daemon --stop --quiet --pidfile $PIDFILE
-    if [ -e $PIDFILE ]
-        then rm $PIDFILE
-    fi
-}
-
+SERVICE_NAME=efir
+PATH_TO_JAR=/opt/$SERVICE_NAME/backend-0.0.1-SNAPSHOT.jar
+JAVA_PATH=/usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/bin/java
+PID_PATH_NAME=/tmp/$SERVICE_NAME-pid
 case $1 in
     start)
-    echo -n "Starting $DESC: $NAME"
-    d_start
-    echo "."
+        echo "Starting $SERVICE_NAME ..."
+        if [ ! -f $PID_PATH_NAME ]; then
+            nohup $JAVA_PATH -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+                        echo $! > $PID_PATH_NAME
+            echo "$SERVICE_NAME started ..."
+        else
+            echo "$SERVICE_NAME is already running ..."
+        fi
     ;;
     stop)
-    echo -n "Stopping $DESC: $NAME"
-    d_stop
-    echo "."
+        if [ -f $PID_PATH_NAME ]; then
+            PID=$(cat $PID_PATH_NAME);
+            echo "$SERVICE_NAME stoping ..."
+            kill $PID;
+            echo "$SERVICE_NAME stopped ..."
+            rm $PID_PATH_NAME
+        else
+            echo "$SERVICE_NAME is not running ..."
+        fi
     ;;
     restart)
-    echo -n "Restarting $DESC: $NAME"
-    d_stop
-    sleep 1
-    d_start
-    echo "."
-    ;;
-    *)
-    echo "usage: $NAME {start|stop|restart}"
-    exit 1
+        if [ -f $PID_PATH_NAME ]; then
+            PID=$(cat $PID_PATH_NAME);
+            echo "$SERVICE_NAME stopping ...";
+            kill $PID;
+            echo "$SERVICE_NAME stopped ...";
+            rm $PID_PATH_NAME
+            echo "$SERVICE_NAME starting ..."
+            nohup $JAVA_PATH -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+                        echo $! > $PID_PATH_NAME
+            echo "$SERVICE_NAME started ..."
+        else
+            echo "$SERVICE_NAME is not running ..."
+        fi
     ;;
 esac
-
-exit 0
