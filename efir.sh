@@ -6,8 +6,7 @@ case $1 in
     start)
         echo "Starting $SERVICE_NAME ..."
         if [ ! -f $PID_PATH_NAME ]; then
-            nohup $JAVA_PATH -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
-                        echo $! > $PID_PATH_NAME
+            nohup $JAVA_PATH -jar $PATH_TO_JAR &
             echo "$SERVICE_NAME started ..."
         else
             echo "$SERVICE_NAME is already running ..."
@@ -32,8 +31,7 @@ case $1 in
             echo "$SERVICE_NAME stopped ...";
             rm $PID_PATH_NAME
             echo "$SERVICE_NAME starting ..."
-            nohup $JAVA_PATH -jar $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
-                        echo $! > $PID_PATH_NAME
+            nohup $JAVA_PATH -jar $PATH_TO_JAR &
             echo "$SERVICE_NAME started ..."
         else
             echo "$SERVICE_NAME is not running ..."
