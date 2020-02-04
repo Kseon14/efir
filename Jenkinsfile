@@ -26,12 +26,11 @@ pipeline {
             steps {
                 echo 'Stoping server....'
                 sh "pwd"
-                sh "chmod +x efir.sh"
-                sh "./efir.sh stop"
                 sh "mkdir -p /opt/efir"
                 sh "rm -rf /opt/efir/backend-0.0.1-SNAPSHOT.jar"
                 sh "cp backend/target/backend-0.0.1-SNAPSHOT.jar /opt/efir"
-                sh "./efir.sh start"
+                sh "cp efir.sh /opt/efir/efir.sh"
+                sh "chmod +x /opt/efir/efir.sh"
             }
         }
     }
