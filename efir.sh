@@ -6,7 +6,7 @@ case $1 in
     start)
         echo "Starting $SERVICE_NAME ..."
         if [ ! -f $PID_PATH_NAME ]; then
-            nohup $JAVA_PATH -jar $PATH_TO_JAR &
+            nohup $JAVA_PATH -jar $PATH_TO_JAR efir.out 2>&1
             echo "$SERVICE_NAME started ..."
         else
             echo "$SERVICE_NAME is already running ..."
